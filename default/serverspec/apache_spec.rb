@@ -83,8 +83,8 @@ describe 'Apache Config' do
   end
 
   describe file(tmp_config) do
-    its(:content) { should match(/^User\s.*?#{user_name}/) }
-    its(:content) { should match(/^Group\s.*?#{user_name}/) }
+    its(:content) { should match(/^\s*?User \s*?#{user_name}/) }
+    its(:content) { should match(/^\s*?Group \s*?#{user_name}/) }
   end
 
   # Req. 3.01-2
@@ -101,17 +101,17 @@ describe 'Apache Config' do
 
   describe 'should not load certain modules' do
     describe file(tmp_config) do
-      its(:content) { should_not match(/^LoadModule dav_module modules\/mod_dav.so/) }
-      its(:content) { should_not match(/^LoadModule cgid_module modules\/mod_cgid.so/) }
-      its(:content) { should_not match(/^LoadModule cgi_module modules\/mod_cgi.so/) }
-      its(:content) { should_not match(/^LoadModule include_module modules\/mod_include.so/) }
+      its(:content) { should_not match(/^\s*?LoadModule \s*?dav_module/) }
+      its(:content) { should_not match(/^\s*?LoadModule \s*?cgid_module/) }
+      its(:content) { should_not match(/^\s*?LoadModule \s*?cgi_module/) }
+      its(:content) { should_not match(/^\s*?LoadModule \s*?include_module/) }
     end
   end
 
   # Req. 3.36-6
   describe 'should disable insecure HTTP-methods' do
     describe file(tmp_config) do
-      its(:content) { should match(/^TraceEnable Off/) }
+      its(:content) { should match(/^\s*?TraceEnable \s*?Off/) }
     end
   end
 
