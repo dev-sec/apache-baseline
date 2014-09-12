@@ -48,10 +48,6 @@ describe service("#{service_name}") do
   it { should be_running }
 end
 
-# apache version
-ret = backend.run_command('httpd -v | grep Apache | cut -d "/" -f2 | cut -d " " -f1 | cut -d "." -f1,2')
-httpd_version = ret[:stdout].chomp
-
 # temporarily combine config-files and remove spaces
 describe 'Combining configfiles' do
   describe command("cat #{apache_config} > #{tmp_config}; for i in `grep Include #{apache_config} | cut -d'\"' -f2`; do cat $i >> #{tmp_config}; done;") do
@@ -116,11 +112,6 @@ describe 'Apache Config' do
   describe 'should disable insecure HTTP-methods' do
     describe file(tmp_config) do
       its(:content) { should match(/^TraceEnable Off/) }
-      if httpd_version == '2.2'
-        its(:content) { should match(/^<LimitExcept GET POST>/) }
-      else
-        its(:content) { should match(/AllowMethods GET POST/) }
-      end
     end
   end
 
