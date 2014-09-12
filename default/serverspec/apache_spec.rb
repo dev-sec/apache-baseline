@@ -81,12 +81,12 @@ describe 'Apache Config' do
     num_files = command('find /etc/httpd/ -perm -o+r -type f -o -perm -o+w -type f | wc -l').stdout.to_i
     num_files.should eq 0
   end
-  
+
   describe file(tmp_config) do
     its(:content) { should match(/^User\s.*?#{user_name}/) }
     its(:content) { should match(/^Group\s.*?#{user_name}/) }
   end
-  
+
   # Req. 3.01-2
   describe 'should not listen on all interfaces' do
     describe file(tmp_config) do
@@ -117,7 +117,7 @@ describe 'Apache Config' do
 
   command("sed -n \"/<Directory/,/Directory>/p\" /tmp/httpd.conf > /tmp/directories.conf")
   total_tags = command('grep Directory /tmp/directories.conf | wc -l').stdout.to_i
-  
+
   # Req. 3.36-7, 8
   it 'should include -FollowSymLinks or +SymLinksIfOwnerMatch for directories' do
     total_symlinks = command("egrep '\\-FollowSymLinks|+SymLinksIfOwnerMatch' /tmp/directories.conf | wc -l").stdout.to_i
