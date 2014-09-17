@@ -48,12 +48,7 @@ describe service("#{service_name}") do
   it { should be_running }
 end
 
-# temporarily combine config-files and remove spaces
-describe 'Combining configfiles' do
-  describe command("cat #{apache_config} > #{tmp_config}; for i in `grep Include #{apache_config} | cut -d'\"' -f2`; do cat $i >> #{tmp_config}; done;") do
-    it { should return_exit_status 0 }
-  end
-end
+backend.run_command("cat #{apache_config} > #{tmp_config}; for i in `grep Include #{apache_config} | cut -d'\"' -f2`; do cat $i >> #{tmp_config}; done;")
 
 # max servers
 ret = backend.run_command("grep ServerLimit #{tmp_config} | tr -d [:alpha:][:space:]")
