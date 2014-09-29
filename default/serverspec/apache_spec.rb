@@ -89,7 +89,7 @@ describe 'Apache Config' do
   end
 
   # DTAG SEC: Req 3.36-12
-  pending  file(tmp_config) do
+  pending file(tmp_config) do
     its(:content) { should match(/^ServerTokens Prod/) }
   end
 
