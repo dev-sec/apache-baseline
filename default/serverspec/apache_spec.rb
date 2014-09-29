@@ -47,8 +47,6 @@ describe service("#{service_name}") do
   it { should be_enabled }
   it { should be_running }
 end
-<<<<<<< HEAD
-=======
 
 backend.run_command("cat #{apache_config} > #{tmp_config}; for i in `grep Include #{apache_config} | cut -d'\"' -f2`; do cat $i >> #{tmp_config}; done;")
 
@@ -56,7 +54,7 @@ backend.run_command("cat #{apache_config} > #{tmp_config}; for i in `grep Includ
 ret = backend.run_command("grep ServerLimit #{tmp_config} | tr -d [:alpha:][:space:]")
 max_servers = ret[:stdout].chomp.to_i
 
-# only a few instances
+
 describe 'Apache Service' do
 
   it 'should start max. 1 root-tasks' do
@@ -73,7 +71,7 @@ end
 
 describe 'Apache Config' do
 
-  # Req. 3.36-3
+  
   pending 'config should not be worldwide read- or writeable' do
     num_files = command('find /etc/httpd/ -perm -o+r -type f -o -perm -o+w -type f | wc -l').stdout.to_i
     num_files.should eq 0
@@ -84,12 +82,18 @@ describe 'Apache Config' do
     num_files.should eq 0
   end
 
+  
   describe file(tmp_config) do
     its(:content) { should match(/^\s*?User \s*?#{user_name}/) }
     its(:content) { should match(/^\s*?Group \s*?#{user_name}/) }
   end
 
-  # Req. 3.01-2
+  
+  pending file(tmp_config) do
+    its(:content) { should match(/^ServerTokens Prod/) }
+  end
+
+  # DTAG SEC: Req 3.01-2
   describe 'should not listen on all interfaces' do
     pending file(tmp_config) do
       its(:content) { should_not match(/^\s*?Listen \s*?*.80/) }
@@ -110,7 +114,7 @@ describe 'Apache Config' do
     end
   end
 
-  # Req. 3.36-6
+  
   describe 'should disable insecure HTTP-methods' do
     describe file(tmp_config) do
       its(:content) { should match(/^\s*?TraceEnable \s*?Off/) }
@@ -121,13 +125,13 @@ describe 'Apache Config' do
   command("sed -n \"/<Directory/,/Directory>/p\" /tmp/httpd.conf > /tmp/directories.conf")
   total_tags = command('grep Directory /tmp/directories.conf | wc -l').stdout.to_i
 
-  # Req. 3.36-7, 8
+  
   it 'should include -FollowSymLinks or +SymLinksIfOwnerMatch for directories' do
     total_symlinks = command("egrep '\\-FollowSymLinks|+SymLinksIfOwnerMatch' /tmp/directories.conf | wc -l").stdout.to_i
     total_symlinks.should eq total_tags / 2
   end
 
-  # Req. 3.36-9
+  
   it 'should include -Indexes for directories' do
     total_symlinks = command("grep '\\-Indexes' /tmp/directories.conf | wc -l").stdout.to_i
     total_symlinks.should eq total_tags / 2
@@ -140,7 +144,7 @@ describe 'Virtualhosts' do
   command("sed -n \"/<VirtualHost/,/VirtualHost>/p\" /tmp/httpd.conf > /tmp/vhosts.conf")
   total_tags = command('grep VirtualHost /tmp/vhosts.conf | wc -l').stdout.to_i
 
-  # Req. 3.36-20
+  
   it 'should log access' do
     total_logs = command("egrep 'CustomLog.*combined' /tmp/vhosts.conf | wc -l").stdout.to_i
     total_logs.should eq total_tags / 2
@@ -157,7 +161,7 @@ if ssl_on == 1
 
   describe 'Securehost' do
 
-    # Req. 3.36-19
+    
     describe file(ssl_config) do
       its(:content) { should match(/SSLHonorCipherOrder.*On/) }
     end
