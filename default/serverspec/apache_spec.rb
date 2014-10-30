@@ -28,9 +28,8 @@ RSpec::Matchers.define :match_key_value do |key, value|
 end
 
 # set OS-dependent filenames and paths
-case backend.check_os[:family]
-when 'Ubuntu', 'Debian'
-  apache_config = '/etc/apache2/apache2.conf'
+case os[:family]
+when 'ubuntu', 'debian'
   service_name = 'apache2'
   task_name = 'apache2'
   user_name = 'www-data'
