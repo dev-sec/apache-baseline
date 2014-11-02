@@ -70,14 +70,9 @@ end
 describe 'Apache Config' do
 
   # DTAG SEC: Req 3.36-3
-  pending 'config should not be worldwide read- or writeable' do
-    num_files = command('find /etc/httpd/ -perm -o+r -type f -o -perm -o+w -type f | wc -l').stdout.to_i
-    num_files.should eq 0
-  end
-
   it 'config should not be worldwide read- or writeable' do
-    num_files = command('find /etc/httpd/ -perm -o+w -type f | wc -l').stdout.to_i
-    num_files.should eq 0
+    num_files = command("find #{apache_config_path} -perm -o+r -type f -o -perm -o+w -type f | wc -l").stdout.to_i
+    expect(num_files).to eq 0
   end
 
   # DTAG SEC: Req 3.36-1, Req 3.36-2
