@@ -26,11 +26,14 @@ end
 # set OS-dependent filenames and paths
 case os[:family]
 when 'ubuntu', 'debian'
+  apache_config_path = '/etc/apache2/'
+  apache_config = File.join(apache_config_path, 'apache2.conf')
   service_name = 'apache2'
   task_name = 'apache2'
   user_name = 'www-data'
 else
-  apache_config = '/etc/httpd/conf/httpd.conf'
+  apache_config_path = '/etc/httpd/'
+  apache_config = File.join(apache_config_path, '/conf/httpd.conf')
   service_name = 'httpd'
   task_name = 'httpd'
   user_name = 'apache'
