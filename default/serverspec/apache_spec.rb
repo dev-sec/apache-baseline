@@ -90,10 +90,10 @@ describe 'Apache Config' do
 
   describe 'should not load certain modules' do
     describe file(tmp_config) do
-      its(:content) { should_not match(/^\s*?LoadModule \s*?dav_module/) }
-      its(:content) { should_not match(/^\s*?LoadModule \s*?cgid_module/) }
-      its(:content) { should_not match(/^\s*?LoadModule \s*?cgi_module/) }
-      its(:content) { should_not match(/^\s*?LoadModule \s*?include_module/) }
+      its(:content) { should_not match(/^\s*?LoadModule\s+?dav_module/) }
+      its(:content) { should_not match(/^\s*?LoadModule\s+?cgid_module/) }
+      its(:content) { should_not match(/^\s*?LoadModule\s+?cgi_module/) }
+      its(:content) { should_not match(/^\s*?LoadModule\s+?include_module/) }
     end
   end
 
