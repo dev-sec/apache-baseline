@@ -88,18 +88,6 @@ describe 'Apache Config' do
     its(:content) { should match(/^ServerTokens Prod/) }
   end
 
-  # DTAG SEC: Req 3.01-2
-  describe 'should not listen on all interfaces' do
-    pending file(tmp_config) do
-      its(:content) { should_not match(/^\s*?Listen \s*?*.80/) }
-      its(:content) { should_not match(/^\s*?Listen \s*?80/) }
-      its(:content) { should_not match(/^\s*?Listen \s*?*.443/) }
-      its(:content) { should_not match(/^\s*?Listen \s*?443/) }
-      its(:content) { should_not match(/^\s*?NameVirtualHost \s*?*:443/) }
-      its(:content) { should_not match(/^\s*?NameVirtualHost \s*?*:80/) }
-    end
-  end
-
   describe 'should not load certain modules' do
     describe file(tmp_config) do
       its(:content) { should_not match(/^\s*?LoadModule \s*?dav_module/) }
