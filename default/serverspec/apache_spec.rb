@@ -100,8 +100,8 @@ describe 'Apache Config' do
   # DTAG SEC: Req 3.36-6
   describe 'should disable insecure HTTP-methods' do
     describe file(tmp_config) do
-      its(:content) { should match(/^\s*?TraceEnable \s*?Off/) }
-      its(:content) { should match(/^\s*?<LimitExcept \s*?GET \s*?POST>/) }
+      its(:content) { should match(/^\s*?TraceEnable\s+?Off/) }
+      its(:content) { should match(/^\s*?<LimitExcept\s+?GET\s+?POST>/) }
     end
   end
 
