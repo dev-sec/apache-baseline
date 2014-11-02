@@ -100,8 +100,8 @@ describe 'Apache Config' do
   
   describe 'should disable insecure HTTP-methods' do
     describe file(tmp_config) do
-      its(:content) { should match(/^\s*?TraceEnable \s*?Off/) }
-      its(:content) { should match(/^\s*?<LimitExcept \s*?GET \s*?POST>/) }
+      its(:content) { should match(/^\s*?TraceEnable\s+?Off/) }
+      its(:content) { should match(/^\s*?<LimitExcept\s+?GET\s+?POST>/) }
     end
   end
 
