@@ -62,13 +62,7 @@ describe 'Apache Service' do
 
   it 'should start max. 1 root-tasks' do
     total_tasks = command("ps aux | grep #{task_name} | grep -v grep | grep root | wc -l | tr -d [:space:]").stdout.to_i
-    total_tasks.should eq 1
-  end
-
-  pending "should start max. #{max_servers} tasks" do
-    # Fix ServerLimit setting in chef scripting and enable it again
-    total_tasks = command("ps aux | grep #{task_name} | grep -v grep | wc -l | tr -d [:space:]").stdout.to_i
-    total_tasks.should be <= max_servers
+    expect(total_tasks).to eq 1
   end
 
 end
