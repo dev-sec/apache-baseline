@@ -111,13 +111,13 @@ describe 'Apache Config' do
   
   it 'should include -FollowSymLinks or +SymLinksIfOwnerMatch for directories' do
     total_symlinks = command("egrep '\\-FollowSymLinks|+SymLinksIfOwnerMatch' /tmp/directories.conf | wc -l").stdout.to_i
-    total_symlinks.should eq total_tags / 2
+    expect(total_symlinks).to eq total_tags / 2
   end
 
   
   it 'should include -Indexes for directories' do
     total_symlinks = command("grep '\\-Indexes' /tmp/directories.conf | wc -l").stdout.to_i
-    total_symlinks.should eq total_tags / 2
+    expect(total_symlinks).to eq total_tags / 2
   end
 
 end
@@ -130,7 +130,7 @@ describe 'Virtualhosts' do
   
   it 'should log access' do
     total_logs = command("egrep 'CustomLog.*combined' /tmp/vhosts.conf | wc -l").stdout.to_i
-    total_logs.should eq total_tags / 2
+    expect(total_logs).to eq total_tags / 2
   end
 
 end
