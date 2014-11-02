@@ -76,9 +76,11 @@ describe 'Apache Config' do
   end
 
   
-  describe file(tmp_config) do
-    its(:content) { should match(/^\s*?User \s*?#{user_name}/) }
-    its(:content) { should match(/^\s*?Group \s*?#{user_name}/) }
+  describe "should have user and group set to #{user_name}" do
+    describe file(tmp_config) do
+      its(:content) { should match(/^\s*?User\s+?#{user_name}/) }
+      its(:content) { should match(/^\s*?Group\s+?#{user_name}/) }
+    end
   end
 
   
