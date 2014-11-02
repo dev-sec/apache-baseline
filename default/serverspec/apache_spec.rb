@@ -46,11 +46,16 @@ describe service("#{service_name}") do
   it { should be_running }
 end
 
-backend.run_command("cat #{apache_config} > #{tmp_config}; for i in `grep Include #{apache_config} | cut -d'\"' -f2`; do cat $i >> #{tmp_config}; done;")
+@max_servers = 0
 
-# max servers
-ret = backend.run_command("grep ServerLimit #{tmp_config} | tr -d [:alpha:][:space:]")
-max_servers = ret[:stdout].chomp.to_i
+# temporarily combine config-files and remove spaces
+describe 'Combining configfiles' do
+
+  describe command("cat #{apache_config} > #{tmp_config}; for i in `egrep '^\\s*Include' #{apache_config} | awk '{ print $2}'`; do [ $(ls -A $i) ]  && cat $i >> #{tmp_config} || echo no files in $i ; done;") do
+    its(:exit_status) { should eq 0 }
+  end
+
+end
 
 
 describe 'Apache Service' do
