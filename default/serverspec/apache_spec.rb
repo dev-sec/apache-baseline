@@ -17,10 +17,6 @@
 
 require 'spec_helper'
 
-RSpec.configure do |c|
-  c.filter_run_excluding skipOn: backend(Serverspec::Commands::Base).check_os[:family]
-end
-
 RSpec::Matchers.define :match_key_value do |key, value|
   match do |actual|
     actual =~ /^\s*?#{key}\s*?=\s*?#{value}/
@@ -28,14 +24,16 @@ RSpec::Matchers.define :match_key_value do |key, value|
 end
 
 # set OS-dependent filenames and paths
-case backend.check_os[:family]
-when 'Ubuntu', 'Debian'
-  apache_config = '/etc/apache2/apache2.conf'
+case os[:family]
+when 'ubuntu', 'debian'
+  apache_config_path = '/etc/apache2/'
+  apache_config = File.join(apache_config_path, 'apache2.conf')
   service_name = 'apache2'
   task_name = 'apache2'
   user_name = 'www-data'
 else
-  apache_config = '/etc/httpd/conf/httpd.conf'
+  apache_config_path = '/etc/httpd/'
+  apache_config = File.join(apache_config_path, '/conf/httpd.conf')
   service_name = 'httpd'
   task_name = 'httpd'
   user_name = 'apache'
@@ -48,24 +46,23 @@ describe service("#{service_name}") do
   it { should be_running }
 end
 
-backend.run_command("cat #{apache_config} > #{tmp_config}; for i in `grep Include #{apache_config} | cut -d'\"' -f2`; do cat $i >> #{tmp_config}; done;")
+@max_servers = 0
 
-# max servers
-ret = backend.run_command("grep ServerLimit #{tmp_config} | tr -d [:alpha:][:space:]")
-max_servers = ret[:stdout].chomp.to_i
+# temporarily combine config-files and remove spaces
+describe 'Combining configfiles' do
+
+  describe command("cat #{apache_config} > #{tmp_config}; for i in `egrep '^\\s*Include' #{apache_config} | awk '{ print $2}'`; do [ $(ls -A $i) ]  && cat $i >> #{tmp_config} || echo no files in $i ; done;") do
+    its(:exit_status) { should eq 0 }
+  end
+
+end
 
 
 describe 'Apache Service' do
 
   it 'should start max. 1 root-tasks' do
     total_tasks = command("ps aux | grep #{task_name} | grep -v grep | grep root | wc -l | tr -d [:space:]").stdout.to_i
-    total_tasks.should eq 1
-  end
-
-  pending "should start max. #{max_servers} tasks" do
-    # Fix ServerLimit setting in chef scripting and enable it again
-    total_tasks = command("ps aux | grep #{task_name} | grep -v grep | wc -l | tr -d [:space:]").stdout.to_i
-    total_tasks.should be <= max_servers
+    expect(total_tasks).to eq 1
   end
 
 end
@@ -73,53 +70,38 @@ end
 describe 'Apache Config' do
 
   
-  pending 'config should not be worldwide read- or writeable' do
-    num_files = command('find /etc/httpd/ -perm -o+r -type f -o -perm -o+w -type f | wc -l').stdout.to_i
-    num_files.should eq 0
+  it 'config should not be worldwide read- or writeable' do
+    num_files = command("find #{apache_config_path} -perm -o+r -type f -o -perm -o+w -type f | wc -l").stdout.to_i
+    expect(num_files).to eq 0
   end
 
-  it 'config should not be worldwide read- or writeable' do
-    num_files = command('find /etc/httpd/ -perm -o+w -type f | wc -l').stdout.to_i
-    num_files.should eq 0
+  
+  describe "should have user and group set to #{user_name}" do
+    describe file(tmp_config) do
+      its(:content) { should match(/^\s*?User\s+?#{user_name}/) }
+      its(:content) { should match(/^\s*?Group\s+?#{user_name}/) }
+    end
   end
 
   
   describe file(tmp_config) do
-    its(:content) { should match(/^\s*?User \s*?#{user_name}/) }
-    its(:content) { should match(/^\s*?Group \s*?#{user_name}/) }
-  end
-
-  
-  pending file(tmp_config) do
     its(:content) { should match(/^ServerTokens Prod/) }
-  end
-
-  # DTAG SEC: Req 3.01-2
-  describe 'should not listen on all interfaces' do
-    pending file(tmp_config) do
-      its(:content) { should_not match(/^\s*?Listen \s*?*.80/) }
-      its(:content) { should_not match(/^\s*?Listen \s*?80/) }
-      its(:content) { should_not match(/^\s*?Listen \s*?*.443/) }
-      its(:content) { should_not match(/^\s*?Listen \s*?443/) }
-      its(:content) { should_not match(/^\s*?NameVirtualHost \s*?*:443/) }
-      its(:content) { should_not match(/^\s*?NameVirtualHost \s*?*:80/) }
-    end
   end
 
   describe 'should not load certain modules' do
     describe file(tmp_config) do
-      its(:content) { should_not match(/^\s*?LoadModule \s*?dav_module/) }
-      its(:content) { should_not match(/^\s*?LoadModule \s*?cgid_module/) }
-      its(:content) { should_not match(/^\s*?LoadModule \s*?cgi_module/) }
-      its(:content) { should_not match(/^\s*?LoadModule \s*?include_module/) }
+      its(:content) { should_not match(/^\s*?LoadModule\s+?dav_module/) }
+      its(:content) { should_not match(/^\s*?LoadModule\s+?cgid_module/) }
+      its(:content) { should_not match(/^\s*?LoadModule\s+?cgi_module/) }
+      its(:content) { should_not match(/^\s*?LoadModule\s+?include_module/) }
     end
   end
 
   
   describe 'should disable insecure HTTP-methods' do
     describe file(tmp_config) do
-      its(:content) { should match(/^\s*?TraceEnable \s*?Off/) }
-      its(:content) { should match(/^\s*?<LimitExcept \s*?GET \s*?POST>/) }
+      its(:content) { should match(/^\s*?TraceEnable\s+?Off/) }
+      its(:content) { should match(/^\s*?<LimitExcept\s+?GET\s+?POST>/) }
     end
   end
 
@@ -129,13 +111,13 @@ describe 'Apache Config' do
   
   it 'should include -FollowSymLinks or +SymLinksIfOwnerMatch for directories' do
     total_symlinks = command("egrep '\\-FollowSymLinks|+SymLinksIfOwnerMatch' /tmp/directories.conf | wc -l").stdout.to_i
-    total_symlinks.should eq total_tags / 2
+    expect(total_symlinks).to eq total_tags / 2
   end
 
   
   it 'should include -Indexes for directories' do
     total_symlinks = command("grep '\\-Indexes' /tmp/directories.conf | wc -l").stdout.to_i
-    total_symlinks.should eq total_tags / 2
+    expect(total_symlinks).to eq total_tags / 2
   end
 
 end
@@ -148,7 +130,7 @@ describe 'Virtualhosts' do
   
   it 'should log access' do
     total_logs = command("egrep 'CustomLog.*combined' /tmp/vhosts.conf | wc -l").stdout.to_i
-    total_logs.should eq total_tags / 2
+    expect(total_logs).to eq total_tags / 2
   end
 
 end
