@@ -112,29 +112,21 @@ end
 
 describe 'Virtualhosts' do
 
-  command("sed -n \"/<VirtualHost/,/VirtualHost>/p\" /tmp/httpd.conf > /tmp/vhosts.conf")
-  total_tags = command('grep VirtualHost /tmp/vhosts.conf | wc -l').stdout.to_i
-
+  # get all the non comment vhost tags
+  vhosts = file_with_includes(apache_config, /^\s*Include.*$/).content.gsub(/#.*$/, '').scan(/<VirtualHost(.*?)<\/VirtualHost>/im).flatten
   
-  it 'should log access' do
-    total_logs = command("egrep 'CustomLog.*combined' /tmp/vhosts.conf | wc -l").stdout.to_i
-    expect(total_logs).to eq total_tags / 2
+  it 'should include Custom Log' do
+    expect(vhosts).to all(match(/CustomLog.*$/i))
   end
 
-end
+  ## get all ssl vhosts
+  vhosts = file_with_includes(apache_config, /^\s*Include.*$/).content.gsub(/#.*$/, '').scan(/<VirtualHost.*443(.*?)<\/VirtualHost>/im).flatten
 
-ssl_on = command("grep \"LoadModule ssl_module modules/mod_ssl.so\" #{tmp_config} | wc -l").stdout.to_i
-
-if ssl_on == 1
-
-  ssl_config = '/tmp/ssl_vhosts.conf'
-  command("sed -n \"/<VirtualHost.*443/,/VirtualHost>/p\" /tmp/httpd.conf >  #{ssl_config}")
-
-  describe 'Securehost' do
+  describe 'SSL Options' do
 
     
-    describe file(ssl_config) do
-      its(:content) { should match(/SSLHonorCipherOrder.*On/) }
+    it 'should include SSLHonorCipherOrder On' do
+      expect(vhosts).to all(match(/SSLHonorCipherOrder.*On/i))
     end
 
   end
