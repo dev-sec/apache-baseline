@@ -61,3 +61,5 @@ else
 
   set :backend, :exec
 end
+
+require 'type/file_with_includes'
