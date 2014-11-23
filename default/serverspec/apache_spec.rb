@@ -93,21 +93,21 @@ describe 'Apache Config' do
     end
   end
 
-  command("sed -n \"/<Directory/,/Directory>/p\" /tmp/httpd.conf > /tmp/directories.conf")
-  total_tags = command('grep Directory /tmp/directories.conf | wc -l').stdout.to_i
+  describe 'protect directories' do
 
-  
-  it 'should include -FollowSymLinks or +SymLinksIfOwnerMatch for directories' do
-    total_symlinks = command("egrep '\\-FollowSymLinks|+SymLinksIfOwnerMatch' /tmp/directories.conf | wc -l").stdout.to_i
-    expect(total_symlinks).to eq total_tags / 2
+    # get all the non comment directory tags
+    directories = file_with_includes(apache_config, /^\s*Include.*$/).content.gsub(/#.*$/, '').scan(/<directory(.*?)<\/directory>/im).flatten
+
+    
+    it 'should include -FollowSymLinks or +SymLinksIfOwnerMatch for directories' do
+      expect(directories).to all(match(/-FollowSymLinks/i).or match(/\+SymLinksIfOwnerMatch/i))
+    end
+
+    
+    it 'should include -Indexes for directories' do
+      expect(directories).to all(match(/-Indexes/i))
+    end
   end
-
-  
-  it 'should include -Indexes for directories' do
-    total_symlinks = command("grep '\\-Indexes' /tmp/directories.conf | wc -l").stdout.to_i
-    expect(total_symlinks).to eq total_tags / 2
-  end
-
 end
 
 describe 'Virtualhosts' do
