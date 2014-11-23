@@ -38,23 +38,12 @@ else
   user_name = 'apache'
 end
 
-tmp_config = '/tmp/httpd.conf'
-
 describe service("#{service_name}") do
   it { should be_enabled }
   it { should be_running }
 end
 
 @max_servers = 0
-
-# temporarily combine config-files and remove spaces
-describe 'Combining configfiles' do
-
-  describe command(%(cat #{apache_config} > #{tmp_config}; for i in `egrep '^\\s*Include' #{apache_config} | awk '{ print $2}' | sed "s/['\\"]//g"`; do [ $(ls -A $i) ]  && cat $i >> #{tmp_config} || echo no files in $i ; done;)) do
-    its(:exit_status) { should eq 0 }
-  end
-
-end
 
 
 describe 'Apache Service' do
@@ -76,19 +65,19 @@ describe 'Apache Config' do
 
   
   describe "should have user and group set to #{user_name}" do
-    describe file(tmp_config) do
+    describe file_with_includes(apache_config, /^\s*Include.*$/) do
       its(:content) { should match(/^\s*?User\s+?#{user_name}/) }
       its(:content) { should match(/^\s*?Group\s+?#{user_name}/) }
     end
   end
 
   
-  describe file(tmp_config) do
+  describe file_with_includes(apache_config, /^\s*Include.*$/) do
     its(:content) { should match(/^ServerTokens Prod/) }
   end
 
   describe 'should not load certain modules' do
-    describe file(tmp_config) do
+    describe file_with_includes(apache_config, /^\s*Include.*$/) do
       its(:content) { should_not match(/^\s*?LoadModule\s+?dav_module/) }
       its(:content) { should_not match(/^\s*?LoadModule\s+?cgid_module/) }
       its(:content) { should_not match(/^\s*?LoadModule\s+?cgi_module/) }
@@ -98,7 +87,7 @@ describe 'Apache Config' do
 
   
   describe 'should disable insecure HTTP-methods' do
-    describe file(tmp_config) do
+    describe file_with_includes(apache_config, /^\s*Include.*$/) do
       its(:content) { should match(/^\s*?TraceEnable\s+?Off/) }
       its(:content) { should match(/^\s*?<LimitExcept\s+?GET\s+?POST>/) }
     end
