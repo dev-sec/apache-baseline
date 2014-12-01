@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 require 'spec_helper'
 
 RSpec::Matchers.define :match_key_value do |key, value|
@@ -39,23 +38,12 @@ else
   user_name = 'apache'
 end
 
-tmp_config = '/tmp/httpd.conf'
-
 describe service("#{service_name}") do
   it { should be_enabled }
   it { should be_running }
 end
 
 @max_servers = 0
-
-# temporarily combine config-files and remove spaces
-describe 'Combining configfiles' do
-
-  describe command(%(cat #{apache_config} > #{tmp_config}; for i in `egrep '^\\s*Include' #{apache_config} | awk '{ print $2}' | sed "s/['\\"]//g"`; do [ $(ls -A $i) ]  && cat $i >> #{tmp_config} || echo no files in $i ; done;)) do
-    its(:exit_status) { should eq 0 }
-  end
-
-end
 
 
 describe 'Apache Service' do
@@ -77,19 +65,19 @@ describe 'Apache Config' do
 
   
   describe "should have user and group set to #{user_name}" do
-    describe file(tmp_config) do
+    describe file_with_includes(apache_config, /^\s*Include.*$/) do
       its(:content) { should match(/^\s*?User\s+?#{user_name}/) }
       its(:content) { should match(/^\s*?Group\s+?#{user_name}/) }
     end
   end
 
   
-  describe file(tmp_config) do
+  describe file_with_includes(apache_config, /^\s*Include.*$/) do
     its(:content) { should match(/^ServerTokens Prod/) }
   end
 
   describe 'should not load certain modules' do
-    describe file(tmp_config) do
+    describe file_with_includes(apache_config, /^\s*Include.*$/) do
       its(:content) { should_not match(/^\s*?LoadModule\s+?dav_module/) }
       its(:content) { should_not match(/^\s*?LoadModule\s+?cgid_module/) }
       its(:content) { should_not match(/^\s*?LoadModule\s+?cgi_module/) }
@@ -99,54 +87,46 @@ describe 'Apache Config' do
 
   
   describe 'should disable insecure HTTP-methods' do
-    describe file(tmp_config) do
+    describe file_with_includes(apache_config, /^\s*Include.*$/) do
       its(:content) { should match(/^\s*?TraceEnable\s+?Off/) }
       its(:content) { should match(/^\s*?<LimitExcept\s+?GET\s+?POST>/) }
     end
   end
 
-  command("sed -n \"/<Directory/,/Directory>/p\" /tmp/httpd.conf > /tmp/directories.conf")
-  total_tags = command('grep Directory /tmp/directories.conf | wc -l').stdout.to_i
+  describe 'protect directories' do
 
-  
-  it 'should include -FollowSymLinks or +SymLinksIfOwnerMatch for directories' do
-    total_symlinks = command("egrep '\\-FollowSymLinks|+SymLinksIfOwnerMatch' /tmp/directories.conf | wc -l").stdout.to_i
-    expect(total_symlinks).to eq total_tags / 2
+    # get all the non comment directory tags
+    directories = file_with_includes(apache_config, /^\s*Include.*$/).content.gsub(/#.*$/, '').scan(/<directory(.*?)<\/directory>/im).flatten
+
+    
+    it 'should include -FollowSymLinks or +SymLinksIfOwnerMatch for directories' do
+      expect(directories).to all(match(/-FollowSymLinks/i).or match(/\+SymLinksIfOwnerMatch/i))
+    end
+
+    
+    it 'should include -Indexes for directories' do
+      expect(directories).to all(match(/-Indexes/i))
+    end
   end
-
-  
-  it 'should include -Indexes for directories' do
-    total_symlinks = command("grep '\\-Indexes' /tmp/directories.conf | wc -l").stdout.to_i
-    expect(total_symlinks).to eq total_tags / 2
-  end
-
 end
 
 describe 'Virtualhosts' do
 
-  command("sed -n \"/<VirtualHost/,/VirtualHost>/p\" /tmp/httpd.conf > /tmp/vhosts.conf")
-  total_tags = command('grep VirtualHost /tmp/vhosts.conf | wc -l').stdout.to_i
-
+  # get all the non comment vhost tags
+  vhosts = file_with_includes(apache_config, /^\s*Include.*$/).content.gsub(/#.*$/, '').scan(/<VirtualHost(.*?)<\/VirtualHost>/im).flatten
   
-  it 'should log access' do
-    total_logs = command("egrep 'CustomLog.*combined' /tmp/vhosts.conf | wc -l").stdout.to_i
-    expect(total_logs).to eq total_tags / 2
+  it 'should include Custom Log' do
+    expect(vhosts).to all(match(/CustomLog.*$/i))
   end
 
-end
+  ## get all ssl vhosts
+  vhosts = file_with_includes(apache_config, /^\s*Include.*$/).content.gsub(/#.*$/, '').scan(/<VirtualHost.*443(.*?)<\/VirtualHost>/im).flatten
 
-ssl_on = command("grep \"LoadModule ssl_module modules/mod_ssl.so\" #{tmp_config} | wc -l").stdout.to_i
-
-if ssl_on == 1
-
-  ssl_config = '/tmp/ssl_vhosts.conf'
-  command("sed -n \"/<VirtualHost.*443/,/VirtualHost>/p\" /tmp/httpd.conf >  #{ssl_config}")
-
-  describe 'Securehost' do
+  describe 'SSL Options' do
 
     
-    describe file(ssl_config) do
-      its(:content) { should match(/SSLHonorCipherOrder.*On/) }
+    it 'should include SSLHonorCipherOrder On' do
+      expect(vhosts).to all(match(/SSLHonorCipherOrder.*On/i))
     end
 
   end
