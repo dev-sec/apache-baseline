@@ -40,8 +40,8 @@ module Serverspec
           file = get_file_content(@file_name)
 
           file.scan(@include_matcher).each do |include_match|
-
-            Dir.glob(include_match[/\/.+?\.[^.]*$|$/]).each do |file_name|
+            # We split at whitespace and strip quotes
+            Dir.glob(include_match.split(/\s/).last.gsub(/['"]/, '')).each do |file_name|
               included_file = get_file_content(file_name)
               file << included_file
             end
