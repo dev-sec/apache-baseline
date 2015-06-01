@@ -3,8 +3,8 @@ tests-apache-hardening
 
 This are the integration tests for the projects
 
-- https://github.com/TelekomLabs/puppet-apache-hardening
-- https://github.com/TelekomLabs/chef-apache-hardening
+- https://github.com/hardening-io/puppet-apache-hardening
+- https://github.com/hardening-io/chef-apache-hardening
 
 they start at `integration` level
 
