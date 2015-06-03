@@ -96,7 +96,7 @@ describe 'Apache Config' do
   describe 'protect directories' do
 
     # get all the non comment directory tags
-    directories = file_with_includes(apache_config, /^\s*Include.*$/).content.gsub(/#.*$/, '').scan(/<directory(.*?)<\/directory>/im).flatten
+    directories = file_with_includes(apache_config, %r{/^\s*Include.*$/}).content.gsub(/#.*$/, '').scan(%r{/<directory(.*?)<\/directory>/im}).flatten
 
     # DTAG SEC: Req 3.36-7, 8
     it 'should include -FollowSymLinks or +SymLinksIfOwnerMatch for directories' do
@@ -113,14 +113,14 @@ end
 describe 'Virtualhosts' do
 
   # get all the non comment vhost tags
-  vhosts = file_with_includes(apache_config, /^\s*Include.*$/).content.gsub(/#.*$/, '').scan(/<VirtualHost(.*?)<\/VirtualHost>/im).flatten
+  vhosts = file_with_includes(apache_config, %r{/^\s*Include.*$/}).content.gsub(/#.*$/, '').scan(%r{/<VirtualHost(.*?)<\/VirtualHost>/im}).flatten
   # DTAG SEC: Req 3.36-20
   it 'should include Custom Log' do
     expect(vhosts).to all(match(/CustomLog.*$/i))
   end
 
   ## get all ssl vhosts
-  vhosts = file_with_includes(apache_config, /^\s*Include.*$/).content.gsub(/#.*$/, '').scan(/<VirtualHost.*443(.*?)<\/VirtualHost>/im).flatten
+  vhosts = file_with_includes(apache_config, %r{/^\s*Include.*$/}).content.gsub(/#.*$/, '').scan(%r{/<VirtualHost.*443(.*?)<\/VirtualHost>/im}).flatten
 
   describe 'SSL Options' do
 
