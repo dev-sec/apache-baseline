@@ -45,25 +45,19 @@ end
 
 @max_servers = 0
 
-
 describe 'Apache Service' do
-
   it 'should start max. 1 root-tasks' do
     total_tasks = command("ps aux | grep #{task_name} | grep -v grep | grep root | wc -l | tr -d [:space:]").stdout.to_i
     expect(total_tasks).to eq 1
   end
-
 end
 
 describe 'Apache Config' do
-
-  
   it 'config should not be worldwide read- or writeable' do
     num_files = command("find #{apache_config_path} -perm -o+r -type f -o -perm -o+w -type f | wc -l").stdout.to_i
     expect(num_files).to eq 0
   end
 
-  
   describe "should have user and group set to #{user_name}" do
     describe file_with_includes(apache_config, /^\s*Include.*$/) do
       its(:content) { should match(/^\s*?User\s+?#{user_name}/) }
@@ -71,7 +65,6 @@ describe 'Apache Config' do
     end
   end
 
-  
   describe file_with_includes(apache_config, /^\s*Include.*$/) do
     its(:content) { should match(/^ServerTokens Prod/) }
   end
@@ -85,7 +78,6 @@ describe 'Apache Config' do
     end
   end
 
-  
   describe 'should disable insecure HTTP-methods' do
     describe file_with_includes(apache_config, /^\s*Include.*$/) do
       its(:content) { should match(/^\s*?TraceEnable\s+?Off/) }
@@ -95,15 +87,12 @@ describe 'Apache Config' do
 
   describe 'protect directories' do
 
-    # get all the non comment directory tags
     directories = file_with_includes(apache_config, %r{/^\s*Include.*$/}).content.gsub(/#.*$/, '').scan(%r{/<directory(.*?)<\/directory>/im}).flatten
 
-    
     it 'should include -FollowSymLinks or +SymLinksIfOwnerMatch for directories' do
       expect(directories).to all(match(/-FollowSymLinks/i).or match(/\+SymLinksIfOwnerMatch/i))
     end
 
-    
     it 'should include -Indexes for directories' do
       expect(directories).to all(match(/-Indexes/i))
     end
@@ -114,7 +103,6 @@ describe 'Virtualhosts' do
 
   # get all the non comment vhost tags
   vhosts = file_with_includes(apache_config, %r{/^\s*Include.*$/}).content.gsub(/#.*$/, '').scan(%r{/<VirtualHost(.*?)<\/VirtualHost>/im}).flatten
-  
   it 'should include Custom Log' do
     expect(vhosts).to all(match(/CustomLog.*$/i))
   end
@@ -123,12 +111,8 @@ describe 'Virtualhosts' do
   vhosts = file_with_includes(apache_config, %r{/^\s*Include.*$/}).content.gsub(/#.*$/, '').scan(%r{/<VirtualHost.*443(.*?)<\/VirtualHost>/im}).flatten
 
   describe 'SSL Options' do
-
-    
     it 'should include SSLHonorCipherOrder On' do
       expect(vhosts).to all(match(/SSLHonorCipherOrder.*On/i))
     end
-
   end
-
 end
