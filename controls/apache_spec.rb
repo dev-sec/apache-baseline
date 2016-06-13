@@ -46,7 +46,6 @@ control 'apache-02' do
   end
 end
 
-
 control 'apache-03' do
   impact 1.0
   title 'Check Apache config folder owner, group and permissions.'
