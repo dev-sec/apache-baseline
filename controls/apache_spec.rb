@@ -103,8 +103,8 @@ control 'apache-05' do
   title 'User and group should be set properly'
   desc 'For security reasons it is recommended to run Apache in its own non-privileged account.'
   describe apache_conf do
-    its('content') { should match(/^\s*?User\s+?#{apache.user}/) }
-    its('content') { should match(/^\s*?Group\s+?#{apache.user}/) }
+    its('User') { should eq [apache.user] }
+    its('Group') { should eq [apache.user] }
   end
 end
 
@@ -112,19 +112,130 @@ control 'apache-06' do
   impact 1.0
   title 'Set the apache server token'
   desc '\'ServerTokens Prod\' tells Apache to return only Apache as product in the server response header on the every page request'
-  describe apache_conf do
-    its('content') { should match(/^\s*ServerTokens Prod/) }
+
+  describe file(File.join(apache.conf_dir,'/conf-enabled/security.conf')) do
+    its('content') { should match(/^ServerTokens Prod/) }
   end
+
+  # open bug https://github.com/chef/inspec/issues/786, if the bug solved use this test
+  # describe apache_conf do
+  #   its('ServerTokens') { should eq 'Prod' }
+  # end
 end
 
 control 'apache-07' do
   impact 1.0
   title 'Should not load certain modules'
   desc 'Apache HTTP should not load legacy modules'
-  describe apache_conf do
-    its(:content) { should_not match(/^\s*?LoadModule\s+?dav_module/) }
-    its(:content) { should_not match(/^\s*?LoadModule\s+?cgid_module/) }
-    its(:content) { should_not match(/^\s*?LoadModule\s+?cgi_module/) }
-    its(:content) { should_not match(/^\s*?LoadModule\s+?include_module/) }
+
+  module_path = File.join(apache.conf_dir, '/mods-enabled/')
+  loaded_modules = command('ls ' << module_path).stdout.split.keep_if{|file_name| /.load/.match(file_name)}
+
+  loaded_modules.each do |id|
+    describe file(File.join(module_path,id)) do
+      its('content') { should_not match(/^\s*?LoadModule\s+?dav_module/) }
+      its('content') { should_not match(/^\s*?LoadModule\s+?cgid_module/) }
+      its('content') { should_not match(/^\s*?LoadModule\s+?cgi_module/) }
+      its('content') { should_not match(/^\s*?LoadModule\s+?include_module/) }
+    end
+  end
+
+  # open bug https://github.com/chef/inspec/issues/786, if the bug solved use this test
+  # describe apache_conf do
+  #   its('LoadModule') { should_not eq 'dav_module' }
+  #   its('LoadModule') { should_not eq 'cgid_module' }
+  #   its('LoadModule') { should_not eq 'cgi_module' }
+  #   its('LoadModule') { should_not eq 'include_module' }
+  #   its('content') { should_not match(/^\s*?LoadModule\s+?dav_module/) }
+  #   its('content') { should_not match(/^\s*?LoadModule\s+?cgid_module/) }
+  #   its('content') { should_not match(/^\s*?LoadModule\s+?cgi_module/) }
+  #   its('content') { should_not match(/^\s*?LoadModule\s+?include_module/) }
+  # end
+end
+
+control 'apache-08' do
+  impact 1.0
+  title 'Disable TRACE-methods'
+  desc 'The web server doesn’t allow TRACE request and help in blocking Cross Site Tracing attack.'
+
+  describe file(File.join(apache.conf_dir,'/conf-enabled/security.conf')) do
+    its('content') { should match(/^\s*?TraceEnable\s+?Off/) }
+  end
+
+  # open bug https://github.com/chef/inspec/issues/786, if the bug solved use this test
+  # describe apache_conf do
+  #   its('TraceEnable') { should eq 'Off' }
+  # end
+end
+
+control 'apache-09' do
+  impact 1.0
+  title 'Disable insecure HTTP-methods'
+  desc 'Disable insecure HTTP-methods and allow only necessary methods.'
+
+  describe file(File.join(apache.conf_dir,'/conf-enabled/hardening.conf')) do
+    its('content') { should match(/^\s*?<LimitExcept\s+?GET\s+?POST>/) }
+  end
+
+  # open bug https://github.com/chef/inspec/issues/786, if the bug solved use this test
+  # describe apache_conf do
+  #   its('LimitExcept') { should eq ['GET','POST'] }
+  # end
+end
+
+control 'apache-10' do
+  impact 1.0
+  title 'Disable Apache’s follows Symbolic Links for directories in alias.conf'
+  desc 'Should include -FollowSymLinks or +SymLinksIfOwnerMatch for directories in alias.conf'
+
+  describe file(File.join(apache.conf_dir,'/mods-enabled/alias.conf')) do
+    its('content') { should match(/-FollowSymLinks/).or match(/\+SymLinksIfOwnerMatch/) }
+  end
+end
+
+control 'apache-11' do
+  impact 1.0
+  title 'Disable Directory Listing for directories in alias.conf'
+  desc 'Should include -Indexes for directories in alias.conf'
+
+  describe file(File.join(apache.conf_dir,'/mods-enabled/alias.conf')) do
+    its('content') { should match(/-Indexes/) }
+  end
+end
+
+control 'apache-12' do
+  impact 1.0
+  title 'SSL honor cipher order'
+  desc 'When choosing a cipher during an SSLv3 or TLSv1 handshake, normally the client\'s preference is used. If this directive is enabled, the server\'s preference will be used instead.'
+
+  describe file(File.join(apache.conf_dir, '/mods-enabled/ssl.conf')) do
+    its('content') { should match(/^\s*?SSLHonorCipherOrder\s+?On/i) }
+  end
+
+  sites_enabled_path = File.join(apache.conf_dir, '/sites-enabled/')
+  loaded_sites = command('ls ' << sites_enabled_path).stdout.split.keep_if{|file_name| /.conf/.match(file_name)}
+
+  loaded_sites.each do |id|
+    virtual_host = file(File.join(sites_enabled_path,id)).content.gsub(/#.*$/, '').scan(/<virtualhost.*443(.*?)<\/virtualhost>/im).flatten
+    if !virtual_host.empty?
+      describe virtual_host do
+        it { should include(/^\s*?SSLHonorCipherOrder\s+?On/i) }
+      end
+    end
+  end
+end
+
+control 'apache-13' do
+  impact 1.0
+  title 'Enable Apache Logging'
+  desc 'Apache allows you to logging independently of your OS logging. It is wise to enable Apache logging, because it provides more information, such as the commands entered by users that have interacted with your Web server.'
+
+  sites_enabled_path = File.join(apache.conf_dir, '/sites-enabled/')
+  loaded_sites = command('ls ' << sites_enabled_path).stdout.split.keep_if{|file_name| /.conf/.match(file_name)}
+
+  loaded_sites.each do |id|
+    describe file(File.join(sites_enabled_path,id)).content.gsub(/#.*$/, '').scan(/<virtualhost(.*?)<\/virtualhost>/im).flatten do
+        it { should include(/CustomLog.*$/i) }
+      end
   end
 end
