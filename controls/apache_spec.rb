@@ -128,7 +128,7 @@ control 'apache-07' do
   desc 'Apache HTTP should not load legacy modules'
 
   module_path = File.join(apache.conf_dir, '/mods-enabled/')
-  loaded_modules = command('ls ' << module_path).stdout.split.keep_if{ |file_name| /.load/.match(file_name) }
+  loaded_modules = command('ls ' << module_path).stdout.split.keep_if { |file_name| /.load/.match(file_name) }
 
   loaded_modules.each do |id|
     describe file(File.join(module_path, id)) do
@@ -212,14 +212,13 @@ control 'apache-12' do
   end
 
   sites_enabled_path = File.join(apache.conf_dir, '/sites-enabled/')
-  loaded_sites = command('ls ' << sites_enabled_path).stdout.split.keep_if{ |file_name| /.conf/.match(file_name) }
+  loaded_sites = command('ls ' << sites_enabled_path).stdout.split.keep_if { |file_name| /.conf/.match(file_name) }
 
   loaded_sites.each do |id|
     virtual_host = file(File.join(sites_enabled_path, id)).content.gsub(/#.*$/, '').scan(%r{<virtualhost.*443(.*?)<\/virtualhost>}im).flatten
-    unless virtual_host.empty?
-      describe virtual_host do
-        it { should include(/^\s*?SSLHonorCipherOrder\s+?On/i) }
-      end
+    next if virtual_host.empty?
+    describe virtual_host do
+      it { should include(/^\s*?SSLHonorCipherOrder\s+?On/i) }
     end
   end
 end
@@ -230,11 +229,11 @@ control 'apache-13' do
   desc 'Apache allows you to logging independently of your OS logging. It is wise to enable Apache logging, because it provides more information, such as the commands entered by users that have interacted with your Web server.'
 
   sites_enabled_path = File.join(apache.conf_dir, '/sites-enabled/')
-  loaded_sites = command('ls ' << sites_enabled_path).stdout.split.keep_if{ |file_name| /.conf/.match(file_name) }
+  loaded_sites = command('ls ' << sites_enabled_path).stdout.split.keep_if { |file_name| /.conf/.match(file_name) }
 
   loaded_sites.each do |id|
     describe file(File.join(sites_enabled_path, id)).content.gsub(/#.*$/, '').scan(%r{<virtualhost(.*?)<\/virtualhost>}im).flatten do
-        it { should include(/CustomLog.*$/i) }
+      it { should include(/CustomLog.*$/i) }
     end
   end
 end
