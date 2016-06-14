@@ -1,6 +1,8 @@
 tests-apache-hardening
 =====================
 
+[![Build Status](http://img.shields.io/travis/dev-sec/tests-apache-hardening.svg)][1]
+
 This Compliance Profile ensures, that all hardening projects keep the same quality.
 
 - https://github.com/dev-sec/puppet-apache-hardening
