@@ -82,7 +82,7 @@ control 'apache-04' do
     it { should_not be_writable.by('others') }
     it { should_not be_executable.by('others') }
   end
-  describe file(File.join(apache.conf_dir,'/conf-enabled/hardening.conf')) do
+  describe file(File.join(apache.conf_dir, '/conf-enabled/hardening.conf')) do
     it { should be_owned_by 'root' }
     it { should be_grouped_into 'root' }
     it { should be_readable.by('owner') }
@@ -112,7 +112,7 @@ control 'apache-06' do
   title 'Set the apache server token'
   desc '\'ServerTokens Prod\' tells Apache to return only Apache as product in the server response header on the every page request'
 
-  describe file(File.join(apache.conf_dir,'/conf-enabled/security.conf')) do
+  describe file(File.join(apache.conf_dir, '/conf-enabled/security.conf')) do
     its('content') { should match(/^ServerTokens Prod/) }
   end
 
@@ -128,10 +128,10 @@ control 'apache-07' do
   desc 'Apache HTTP should not load legacy modules'
 
   module_path = File.join(apache.conf_dir, '/mods-enabled/')
-  loaded_modules = command('ls ' << module_path).stdout.split.keep_if{|file_name| /.load/.match(file_name)}
+  loaded_modules = command('ls ' << module_path).stdout.split.keep_if{ |file_name| /.load/.match(file_name) }
 
   loaded_modules.each do |id|
-    describe file(File.join(module_path,id)) do
+    describe file(File.join(module_path, id)) do
       its('content') { should_not match(/^\s*?LoadModule\s+?dav_module/) }
       its('content') { should_not match(/^\s*?LoadModule\s+?cgid_module/) }
       its('content') { should_not match(/^\s*?LoadModule\s+?cgi_module/) }
@@ -157,7 +157,7 @@ control 'apache-08' do
   title 'Disable TRACE-methods'
   desc 'The web server doesn’t allow TRACE request and help in blocking Cross Site Tracing attack.'
 
-  describe file(File.join(apache.conf_dir,'/conf-enabled/security.conf')) do
+  describe file(File.join(apache.conf_dir, '/conf-enabled/security.conf')) do
     its('content') { should match(/^\s*?TraceEnable\s+?Off/) }
   end
 
@@ -172,7 +172,7 @@ control 'apache-09' do
   title 'Disable insecure HTTP-methods'
   desc 'Disable insecure HTTP-methods and allow only necessary methods.'
 
-  describe file(File.join(apache.conf_dir,'/conf-enabled/hardening.conf')) do
+  describe file(File.join(apache.conf_dir, '/conf-enabled/hardening.conf')) do
     its('content') { should match(/^\s*?<LimitExcept\s+?GET\s+?POST>/) }
   end
 
@@ -187,7 +187,7 @@ control 'apache-10' do
   title 'Disable Apache’s follows Symbolic Links for directories in alias.conf'
   desc 'Should include -FollowSymLinks or +SymLinksIfOwnerMatch for directories in alias.conf'
 
-  describe file(File.join(apache.conf_dir,'/mods-enabled/alias.conf')) do
+  describe file(File.join(apache.conf_dir, '/mods-enabled/alias.conf')) do
     its('content') { should match(/-FollowSymLinks/).or match(/\+SymLinksIfOwnerMatch/) }
   end
 end
@@ -197,7 +197,7 @@ control 'apache-11' do
   title 'Disable Directory Listing for directories in alias.conf'
   desc 'Should include -Indexes for directories in alias.conf'
 
-  describe file(File.join(apache.conf_dir,'/mods-enabled/alias.conf')) do
+  describe file(File.join(apache.conf_dir, '/mods-enabled/alias.conf')) do
     its('content') { should match(/-Indexes/) }
   end
 end
@@ -212,11 +212,11 @@ control 'apache-12' do
   end
 
   sites_enabled_path = File.join(apache.conf_dir, '/sites-enabled/')
-  loaded_sites = command('ls ' << sites_enabled_path).stdout.split.keep_if{|file_name| /.conf/.match(file_name)}
+  loaded_sites = command('ls ' << sites_enabled_path).stdout.split.keep_if{ |file_name| /.conf/.match(file_name) }
 
   loaded_sites.each do |id|
-    virtual_host = file(File.join(sites_enabled_path,id)).content.gsub(/#.*$/, '').scan(/<virtualhost.*443(.*?)<\/virtualhost>/im).flatten
-    if !virtual_host.empty?
+    virtual_host = file(File.join(sites_enabled_path, id)).content.gsub(/#.*$/, '').scan(%r{<virtualhost.*443(.*?)<\/virtualhost>}im).flatten
+    unless virtual_host.empty?
       describe virtual_host do
         it { should include(/^\s*?SSLHonorCipherOrder\s+?On/i) }
       end
@@ -230,11 +230,11 @@ control 'apache-13' do
   desc 'Apache allows you to logging independently of your OS logging. It is wise to enable Apache logging, because it provides more information, such as the commands entered by users that have interacted with your Web server.'
 
   sites_enabled_path = File.join(apache.conf_dir, '/sites-enabled/')
-  loaded_sites = command('ls ' << sites_enabled_path).stdout.split.keep_if{|file_name| /.conf/.match(file_name)}
+  loaded_sites = command('ls ' << sites_enabled_path).stdout.split.keep_if{ |file_name| /.conf/.match(file_name) }
 
   loaded_sites.each do |id|
-    describe file(File.join(sites_enabled_path,id)).content.gsub(/#.*$/, '').scan(/<virtualhost(.*?)<\/virtualhost>/im).flatten do
+    describe file(File.join(sites_enabled_path, id)).content.gsub(/#.*$/, '').scan(%r{<virtualhost(.*?)<\/virtualhost>}im).flatten do
         it { should include(/CustomLog.*$/i) }
-      end
+    end
   end
 end
