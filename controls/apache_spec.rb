@@ -32,12 +32,21 @@ control 'apache-01' do
   desc 'Apache should be running.'
   describe service(apache.service) do
     it { should be_installed }
-    # it { should be_enabled } # comment the test because i got some trouble with the systemd in debian-8 and ubuntu-16.04
     it { should be_running }
   end
 end
 
 control 'apache-02' do
+  impact 1.0
+  title 'Apache should be enabled'
+  desc 'Configure apache service to be automatically started at boot time'
+  only_if { os[:family] != 'ubuntu' && os[:release] != '16.04' } || only_if { os[:family] != 'debian' && os[:release] != '8' }
+  describe service(apache.service) do
+    it { should be_enabled }
+  end
+end
+
+control 'apache-03' do
   title 'Apache should start max. 1 root-task'
   desc 'The Apache service in its own non-privileged account. If the web server process runs with administrative privileges, an attack who obtains control over the apache process may control the entire system.'
   total_tasks = command("ps aux | grep #{apache.service} | grep -v grep | grep root | wc -l | tr -d [:space:]").stdout.to_i
@@ -46,7 +55,7 @@ control 'apache-02' do
   end
 end
 
-control 'apache-03' do
+control 'apache-04' do
   impact 1.0
   title 'Check Apache config folder owner, group and permissions.'
   desc 'The Apache config folder should owned and grouped by root, be writable, readable and executable by owner. It should be readable, executable by group and not readable, not writeable by others.'
@@ -65,7 +74,7 @@ control 'apache-03' do
   end
 end
 
-control 'apache-04' do
+control 'apache-05' do
   impact 1.0
   title 'Check Apache config file owner, group and permissions.'
   desc 'The Apache config file should owned and grouped by root, only be writable and readable by owner and not write- and readable by others.'
@@ -97,7 +106,7 @@ control 'apache-04' do
   end
 end
 
-control 'apache-05' do
+control 'apache-06' do
   impact 1.0
   title 'User and group should be set properly'
   desc 'For security reasons it is recommended to run Apache in its own non-privileged account.'
@@ -107,7 +116,7 @@ control 'apache-05' do
   end
 end
 
-control 'apache-06' do
+control 'apache-07' do
   impact 1.0
   title 'Set the apache server token'
   desc '\'ServerTokens Prod\' tells Apache to return only Apache as product in the server response header on the every page request'
@@ -122,7 +131,7 @@ control 'apache-06' do
   # end
 end
 
-control 'apache-07' do
+control 'apache-08' do
   impact 1.0
   title 'Should not load certain modules'
   desc 'Apache HTTP should not load legacy modules'
@@ -152,7 +161,7 @@ control 'apache-07' do
   # end
 end
 
-control 'apache-08' do
+control 'apache-09' do
   impact 1.0
   title 'Disable TRACE-methods'
   desc 'The web server doesn’t allow TRACE request and help in blocking Cross Site Tracing attack.'
@@ -167,7 +176,7 @@ control 'apache-08' do
   # end
 end
 
-control 'apache-09' do
+control 'apache-10' do
   impact 1.0
   title 'Disable insecure HTTP-methods'
   desc 'Disable insecure HTTP-methods and allow only necessary methods.'
@@ -182,7 +191,7 @@ control 'apache-09' do
   # end
 end
 
-control 'apache-10' do
+control 'apache-11' do
   impact 1.0
   title 'Disable Apache’s follows Symbolic Links for directories in alias.conf'
   desc 'Should include -FollowSymLinks or +SymLinksIfOwnerMatch for directories in alias.conf'
@@ -192,7 +201,7 @@ control 'apache-10' do
   end
 end
 
-control 'apache-11' do
+control 'apache-12' do
   impact 1.0
   title 'Disable Directory Listing for directories in alias.conf'
   desc 'Should include -Indexes for directories in alias.conf'
@@ -202,7 +211,7 @@ control 'apache-11' do
   end
 end
 
-control 'apache-12' do
+control 'apache-13' do
   impact 1.0
   title 'SSL honor cipher order'
   desc 'When choosing a cipher during an SSLv3 or TLSv1 handshake, normally the client\'s preference is used. If this directive is enabled, the server\'s preference will be used instead.'
@@ -223,7 +232,7 @@ control 'apache-12' do
   end
 end
 
-control 'apache-13' do
+control 'apache-14' do
   impact 1.0
   title 'Enable Apache Logging'
   desc 'Apache allows you to logging independently of your OS logging. It is wise to enable Apache logging, because it provides more information, such as the commands entered by users that have interacted with your Web server.'
