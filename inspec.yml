@@ -1,0 +1,10 @@
+name: apache-hardening
+title: Hardening Framework Apache Hardening Test Suite
+maintainer: Hardening Framework Team
+copyright: Hardening Framework Team
+copyright_email: hello@dev-sec.io
+license: Apache 2 license
+summary: Test-suite for best-practice apache hardening
+version: 2.0.0
+supports:
+  - os-family: unix
