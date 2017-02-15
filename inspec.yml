@@ -1,5 +1,5 @@
-name: apache-hardening
-title: Hardening Framework Apache Hardening Test Suite
+name: apache-baseline
+title: DevSec Apache Baseline
 maintainer: Hardening Framework Team
 copyright: Hardening Framework Team
 copyright_email: hello@dev-sec.io
