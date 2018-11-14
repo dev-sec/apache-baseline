@@ -1,4 +1,5 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 #
 # Copyright 2016, Patrick Muench
 #
@@ -226,6 +227,7 @@ control 'apache-13' do
   loaded_sites.each do |id|
     virtual_host = file(File.join(sites_enabled_path, id)).content.gsub(/#.*$/, '').scan(%r{<virtualhost.*443(.*?)<\/virtualhost>}im).flatten
     next if virtual_host.empty?
+
     describe virtual_host do
       it { should include(/^\s*?SSLHonorCipherOrder\s+?On/i) }
     end
