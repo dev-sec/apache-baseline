@@ -71,7 +71,7 @@ control 'apache-04' do
     it { should be_executable.by('group') }
     it { should_not be_readable.by('others') }
     it { should_not be_writable.by('others') }
-    it { should be_executable.by('others') }
+    it { should_not be_executable.by('others') }
   end
 end
 
@@ -92,7 +92,8 @@ control 'apache-05' do
     it { should_not be_writable.by('others') }
     it { should_not be_executable.by('others') }
   end
-  describe file(File.join(apache.conf_dir, '/conf-enabled/hardening.conf')) do
+  if os.debian?
+    describe file(File.join(apache.conf_dir, '/conf-enabled/90.hardening.conf')) do
     it { should be_owned_by 'root' }
     it { should be_grouped_into 'root' }
     it { should be_readable.by('owner') }
@@ -104,6 +105,21 @@ control 'apache-05' do
     it { should_not be_readable.by('others') }
     it { should_not be_writable.by('others') }
     it { should_not be_executable.by('others') }
+    end
+  else
+    describe file(File.join(apache.conf_dir, '/conf.d/90.hardening.conf')) do
+    it { should be_owned_by 'root' }
+    it { should be_grouped_into 'root' }
+    it { should be_readable.by('owner') }
+    it { should be_writable.by('owner') }
+    it { should_not be_executable.by('owner') }
+    it { should be_readable.by('group') }
+    it { should_not be_writable.by('group') }
+    it { should_not be_executable.by('group') }
+    it { should_not be_readable.by('others') }
+    it { should_not be_writable.by('others') }
+    it { should_not be_executable.by('others') }
+    end
   end
 end
 
@@ -122,14 +138,9 @@ control 'apache-07' do
   title 'Set the apache server token'
   desc '\'ServerTokens Prod\' tells Apache to return only Apache as product in the server response header on the every page request'
 
-  describe file(File.join(apache.conf_dir, '/conf-enabled/security.conf')) do
-    its('content') { should match(/^ServerTokens Prod/) }
-  end
-
-  # open bug https://github.com/chef/inspec/issues/786, if the bug solved use this test
-  # describe apache_conf do
-  #   its('ServerTokens') { should eq 'Prod' }
-  # end
+   describe apache_conf do
+     its('ServerTokens') { should cmp 'Prod' }
+   end
 end
 
 control 'apache-08' do
@@ -150,31 +161,25 @@ control 'apache-08' do
   end
 
   # open bug https://github.com/chef/inspec/issues/786, if the bug solved use this test
-  # describe apache_conf do
-  #   its('LoadModule') { should_not eq 'dav_module' }
-  #   its('LoadModule') { should_not eq 'cgid_module' }
-  #   its('LoadModule') { should_not eq 'cgi_module' }
-  #   its('LoadModule') { should_not eq 'include_module' }
-  #   its('content') { should_not match(/^\s*?LoadModule\s+?dav_module/) }
-  #   its('content') { should_not match(/^\s*?LoadModule\s+?cgid_module/) }
-  #   its('content') { should_not match(/^\s*?LoadModule\s+?cgi_module/) }
-  #   its('content') { should_not match(/^\s*?LoadModule\s+?include_module/) }
-  # end
+   #describe apache_conf do
+     #its('LoadModule') { should_not cmp 'dav_module' }
+     #its('LoadModule') { should_not cmp 'cgid_module' }
+     #its('LoadModule') { should_not cmp 'cgi_module' }
+     #its('LoadModule') { should_not cmp 'include_module' }
+     #its('content') { should_not match(/^\s*?LoadModule\s+?dav_module/) }
+     #its('content') { should_not match(/^\s*?LoadModule\s+?cgid_module/) }
+     #its('content') { should_not match(/^\s*?LoadModule\s+?cgi_module/) }
+     #its('content') { should_not match(/^\s*?LoadModule\s+?include_module/) }
+   #end
 end
 
 control 'apache-09' do
   impact 1.0
   title 'Disable TRACE-methods'
   desc 'The web server doesn’t allow TRACE request and help in blocking Cross Site Tracing attack.'
-
-  describe file(File.join(apache.conf_dir, '/conf-enabled/security.conf')) do
-    its('content') { should match(/^\s*?TraceEnable\s+?Off/) }
+  describe apache_conf do
+    its('TraceEnable') { should cmp 'Off' }
   end
-
-  # open bug https://github.com/chef/inspec/issues/786, if the bug solved use this test
-  # describe apache_conf do
-  #   its('TraceEnable') { should eq 'Off' }
-  # end
 end
 
 control 'apache-10' do
@@ -182,14 +187,15 @@ control 'apache-10' do
   title 'Disable insecure HTTP-methods'
   desc 'Disable insecure HTTP-methods and allow only necessary methods.'
 
-  describe file(File.join(apache.conf_dir, '/conf-enabled/hardening.conf')) do
-    its('content') { should match(/^\s*?<LimitExcept\s+?GET\s+?POST>/) }
+  if os.debian?
+    describe file(File.join(apache.conf_dir, '/conf-enabled/90.hardening.conf')) do
+      its('content') { should match(/^\s*?<LimitExcept\s+?GET\s+?POST>/)  }
+    end
+  else
+    describe file(File.join(apache.conf_dir, '/conf.d/90.hardening.conf')) do
+      its('content') { should match(/^\s*?<LimitExcept\s+?GET\s+?POST>/)  }
+    end
   end
-
-  # open bug https://github.com/chef/inspec/issues/786, if the bug solved use this test
-  # describe apache_conf do
-  #   its('LimitExcept') { should eq ['GET','POST'] }
-  # end
 end
 
 control 'apache-11' do
@@ -197,9 +203,13 @@ control 'apache-11' do
   title 'Disable Apache’s follows Symbolic Links for directories in alias.conf'
   desc 'Should include -FollowSymLinks or +SymLinksIfOwnerMatch for directories in alias.conf'
 
-  describe file(File.join(apache.conf_dir, '/mods-enabled/alias.conf')) do
+  describe apache_conf do
     its('content') { should match(/-FollowSymLinks/).or match(/\+SymLinksIfOwnerMatch/) }
   end
+
+  #describe file(File.join(apache.conf_dir, '/mods-enabled/alias.conf')) do
+  #  its('content') { should match(/-FollowSymLinks/).or match(/\+SymLinksIfOwnerMatch/) }
+  #end
 end
 
 control 'apache-12' do
@@ -207,9 +217,13 @@ control 'apache-12' do
   title 'Disable Directory Listing for directories in alias.conf'
   desc 'Should include -Indexes for directories in alias.conf'
 
-  describe file(File.join(apache.conf_dir, '/mods-enabled/alias.conf')) do
+  describe apache_conf do
     its('content') { should match(/-Indexes/) }
   end
+
+  #describe file(File.join(apache.conf_dir, '/mods-enabled/alias.conf')) do
+  #  its('content') { should match(/-Indexes/) }
+  #end
 end
 
 control 'apache-13' do
@@ -217,8 +231,14 @@ control 'apache-13' do
   title 'SSL honor cipher order'
   desc 'When choosing a cipher during an SSLv3 or TLSv1 handshake, normally the client\'s preference is used. If this directive is enabled, the server\'s preference will be used instead.'
 
-  describe file(File.join(apache.conf_dir, '/mods-enabled/ssl.conf')) do
-    its('content') { should match(/^\s*?SSLHonorCipherOrder\s+?On/i) }
+  if os.redhat?
+    describe file(File.join(apache.conf_dir, '/conf.d/ssl.conf')) do
+      its('content') { should match(/^\s*?SSLHonorCipherOrder\s+?On/i) }
+    end
+  else
+    describe file(File.join(apache.conf_dir, '/mods-enabled/ssl.conf')) do
+      its('content') { should match(/^\s*?SSLHonorCipherOrder\s+?On/i) }
+    end
   end
 
   sites_enabled_path = File.join(apache.conf_dir, '/sites-enabled/')
@@ -227,7 +247,6 @@ control 'apache-13' do
   loaded_sites.each do |id|
     virtual_host = file(File.join(sites_enabled_path, id)).content.gsub(/#.*$/, '').scan(%r{<virtualhost.*443(.*?)<\/virtualhost>}im).flatten
     next if virtual_host.empty?
-
     describe virtual_host do
       it { should include(/^\s*?SSLHonorCipherOrder\s+?On/i) }
     end
