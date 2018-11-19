@@ -94,41 +94,6 @@ end
 
 control 'apache-06' do
   impact 1.0
-  title 'Check Apache hardening config file owner, group and permissions'
-  desc 'The Apache hardening config file should owned and grouped by root, only be writable and readable by owner and not write- and readable by others.'
-  if os.debian?
-    describe file(File.join(apache.conf_dir, '/conf-enabled/90.hardening.conf')) do
-      it { should be_owned_by 'root' }
-      it { should be_grouped_into 'root' }
-      it { should be_readable.by('owner') }
-      it { should be_writable.by('owner') }
-      it { should_not be_executable.by('owner') }
-      it { should be_readable.by('group') }
-      it { should_not be_writable.by('group') }
-      it { should_not be_executable.by('group') }
-      it { should_not be_readable.by('others') }
-      it { should_not be_writable.by('others') }
-      it { should_not be_executable.by('others') }
-    end
-  else
-    describe file(File.join(apache.conf_dir, '/conf.d/90.hardening.conf')) do
-      it { should be_owned_by 'root' }
-      it { should be_grouped_into 'root' }
-      it { should be_readable.by('owner') }
-      it { should be_writable.by('owner') }
-      it { should_not be_executable.by('owner') }
-      it { should be_readable.by('group') }
-      it { should_not be_writable.by('group') }
-      it { should_not be_executable.by('group') }
-      it { should_not be_readable.by('others') }
-      it { should_not be_writable.by('others') }
-      it { should_not be_executable.by('others') }
-    end
-  end
-end
-
-control 'apache-07' do
-  impact 1.0
   title 'User and group should be set properly'
   desc 'For security reasons it is recommended to run Apache in its own non-privileged account.'
   describe apache_conf do
@@ -137,7 +102,7 @@ control 'apache-07' do
   end
 end
 
-control 'apache-08' do
+control 'apache-07' do
   impact 1.0
   title 'Set the apache server token'
   desc '\'ServerTokens Prod\' tells Apache to return only Apache as product in the server response header on the every page request'
@@ -146,7 +111,7 @@ control 'apache-08' do
   end
 end
 
-control 'apache-09' do
+control 'apache-08' do
   impact 1.0
   title 'Should not load certain modules'
   desc 'Apache HTTP should not load legacy modules'
@@ -164,7 +129,7 @@ control 'apache-09' do
   end
 end
 
-control 'apache-10' do
+control 'apache-09' do
   impact 1.0
   title 'Disable TRACE-methods'
   desc 'The web server doesn’t allow TRACE request and help in blocking Cross Site Tracing attack.'
@@ -173,63 +138,39 @@ control 'apache-10' do
   end
 end
 
-control 'apache-11' do
+control 'apache-10' do
   impact 1.0
   title 'Disable insecure HTTP-methods'
   desc 'Disable insecure HTTP-methods and allow only necessary methods.'
+  describe apache_conf do
+    its('content') { should match(/^\s*?<LimitExcept\s+?GET\s+?POST>/)  }
+  end
+end
 
-  if os.debian?
-    describe file(File.join(apache.conf_dir, '/conf-enabled/90.hardening.conf')) do
-      its('content') { should match(/^\s*?<LimitExcept\s+?GET\s+?POST>/)  }
-    end
-  else
-    describe file(File.join(apache.conf_dir, '/conf.d/90.hardening.conf')) do
-      its('content') { should match(/^\s*?<LimitExcept\s+?GET\s+?POST>/)  }
-    end
+control 'apache-11' do
+  impact 1.0
+  title 'Disable Apache’s follows Symbolic Links for directories in alias.conf'
+  desc 'Should include -FollowSymLinks or +SymLinksIfOwnerMatch for directories in alias.conf'
+  describe apache_conf do
+    its('content') { should match(/-FollowSymLinks/).or match(/\+SymLinksIfOwnerMatch/) }
   end
 end
 
 control 'apache-12' do
   impact 1.0
-  title 'Disable Apache’s follows Symbolic Links for directories in alias.conf'
-  desc 'Should include -FollowSymLinks or +SymLinksIfOwnerMatch for directories in alias.conf'
-
+  title 'Disable Directory Listing for directories in alias.conf'
+  desc 'Should include -Indexes for directories in alias.conf'
   describe apache_conf do
-    its('content') { should match(/-FollowSymLinks/).or match(/\+SymLinksIfOwnerMatch/) }
+    its('content') { should match(/-Indexes/) }
   end
-
-  # describe file(File.join(apache.conf_dir, '/mods-enabled/alias.conf')) do
-  #   its('content') { should match(/-FollowSymLinks/).or match(/\+SymLinksIfOwnerMatch/) }
-  # end
 end
 
 control 'apache-13' do
   impact 1.0
-  title 'Disable Directory Listing for directories in alias.conf'
-  desc 'Should include -Indexes for directories in alias.conf'
-
-  describe apache_conf do
-    its('content') { should match(/-Indexes/) }
-  end
-
-  # describe file(File.join(apache.conf_dir, '/mods-enabled/alias.conf')) do
-  #  its('content') { should match(/-Indexes/) }
-  # end
-end
-
-control 'apache-14' do
-  impact 1.0
   title 'SSL honor cipher order'
   desc 'When choosing a cipher during an SSLv3 or TLSv1 handshake, normally the client\'s preference is used. If this directive is enabled, the server\'s preference will be used instead.'
-
-  if os.redhat?
-    describe file(File.join(apache.conf_dir, '/conf.d/ssl.conf')) do
-      its('content') { should match(/^\s*?SSLHonorCipherOrder\s+?On/i) }
-    end
-  else
-    describe file(File.join(apache.conf_dir, '/mods-enabled/ssl.conf')) do
-      its('content') { should match(/^\s*?SSLHonorCipherOrder\s+?On/i) }
-    end
+  describe apache_conf do
+    its('content') { should match(/^\s*?SSLHonorCipherOrder\s+?On/i) }
   end
 
   sites_enabled_path = File.join(apache.conf_dir, '/sites-enabled/')
@@ -245,7 +186,7 @@ control 'apache-14' do
   end
 end
 
-control 'apache-15' do
+control 'apache-14' do
   impact 1.0
   title 'Enable Apache Logging'
   desc 'Apache allows you to logging independently of your OS logging. It is wise to enable Apache logging, because it provides more information, such as the commands entered by users that have interacted with your Web server.'
