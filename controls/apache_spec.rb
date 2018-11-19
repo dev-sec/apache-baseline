@@ -143,7 +143,7 @@ control 'apache-10' do
   title 'Disable insecure HTTP-methods'
   desc 'Disable insecure HTTP-methods and allow only necessary methods.'
   describe apache_conf do
-    its('content') { should match(/^\s*?<LimitExcept\s+?GET\s+?POST>/)  }
+    its('content') { should match(/^\s*?<LimitExcept\s+?GET\s+?POST>/) }
   end
 end
 
