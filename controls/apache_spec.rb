@@ -132,10 +132,9 @@ end
 control 'apache-09' do
   impact 1.0
   title 'Disable TRACE-methods'
-  desc 'The web server doesn\'t allow TRACE request and help in blocking Cross Site Tracing attack.'
-
-  describe file(File.join(apache.conf_dir, '/conf-enabled/security.conf')) do
-    its('content') { should match(/^\s*?TraceEnable\s+?Off/) }
+  desc 'The web server doesn’t allow TRACE request and help in blocking Cross Site Tracing attack.'
+  describe apache_conf do
+    its('TraceEnable') { should cmp 'Off' }
   end
 end
 
@@ -150,7 +149,7 @@ end
 
 control 'apache-11' do
   impact 1.0
-  title 'Disable Apache\'s follows Symbolic Links for directories in alias.conf'
+  title 'Disable Apaches follows Symbolic Links for directories in alias.conf'
   desc 'Should include -FollowSymLinks or +SymLinksIfOwnerMatch for directories in alias.conf'
   describe apache_conf do
     its('content') { should match(/-FollowSymLinks/).or match(/\+SymLinksIfOwnerMatch/) }
