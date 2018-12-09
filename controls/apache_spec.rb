@@ -116,16 +116,11 @@ control 'apache-08' do
   title 'Should not load certain modules'
   desc 'Apache HTTP should not load legacy modules'
 
-  module_path = File.join(apache.conf_dir, '/mods-enabled/')
-  loaded_modules = command('ls ' << module_path).stdout.split.keep_if { |file_name| /.load/.match(file_name) }
-
-  loaded_modules.each do |id|
-    describe file(File.join(module_path, id)) do
-      its('content') { should_not match(/^\s*?LoadModule\s+?dav_module/) }
-      its('content') { should_not match(/^\s*?LoadModule\s+?cgid_module/) }
-      its('content') { should_not match(/^\s*?LoadModule\s+?cgi_module/) }
-      its('content') { should_not match(/^\s*?LoadModule\s+?include_module/) }
-    end
+  describe command('apachectl -M') do
+    its(:stdout) { should_not match(/^\s*?dav_module.*/) }
+    its(:stdout) { should_not match(/^\s*?cgid_module.*/) }
+    its(:stdout) { should_not match(/^\s*?cgi_module.*/) }
+    its(:stdout) { should_not match(/^\s*?include_module.*/) }
   end
 end
 
