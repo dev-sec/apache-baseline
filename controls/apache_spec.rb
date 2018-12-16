@@ -75,7 +75,7 @@ control 'apache-05' do
   impact 1.0
   title 'Check Apache config file owner, group and permissions.'
   desc 'The Apache config file should owned and grouped by root, only be writable and readable by owner and not write- and readable by others.'
-  describe file(HTTPD_CONFIG_FILE_PATH) do  
+  describe file(HTTPD_CONFIG_FILE_PATH) do
     it { should be_owned_by 'root' }
     it { should be_grouped_into 'root' }
     it { should be_readable.by('owner') }
