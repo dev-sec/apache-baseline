@@ -19,21 +19,15 @@
 
 title 'Apache server config'
 
-# control 'apache-01' do
-#   impact 1.0
-#   title 'Apache should be running'
-#   desc 'Apache should be running.'
-#   describe service(apache.service) do
-#     it { should be_installed }
-#     it { should be_running }
-#   end
-# end
+HTTPD_ROOT = command("apachectl -V | grep HTTPD_ROOT | cut -d'=' -f2 | sed 's/\"//g'")
+HTTPD_CONFIG_FILE = command("apachectl -V | grep SERVER_CONFIG_FILE | cut -d'=' -f2 | sed 's/\"//g'")
+HTTPD_CONFIG_FILE_PATH = File.join(HTTPD_ROOT.stdout.strip, HTTPD_CONFIG_FILE.stdout.strip)
+HTTPD_USER = command("ps -ef | egrep '(httpd|apache2)' | grep -v root | head -n1 | awk '{print $1}'")
 
 control 'apache-01' do
   impact 1.0
   title 'Apache should be running'
   desc 'Apache should be installed, running and automatically started at boot time'
-  # https://www.inspec.io/docs/reference/resources/os/
   if os.debian?
     describe service('apache2') do
       it { should be_installed }
@@ -49,20 +43,10 @@ control 'apache-01' do
   end
 end
 
-# control 'apache-02' do
-#   impact 1.0
-#   title 'Apache should be enabled'
-#   desc 'Configure apache service to be automatically started at boot time'
-#   only_if { os[:family] != 'ubuntu' && os[:release] != '16.04' } || only_if { os[:family] != 'debian' && os[:release] != '8' }
-#   describe service(apache.service) do
-#     it { should be_enabled }
-#   end
-# end
-
 control 'apache-03' do
   title 'Apache should start max. 1 root-task'
   desc 'The Apache service in its own non-privileged account. If the web server process runs with administrative privileges, an attack who obtains control over the apache process may control the entire system.'
-  total_tasks = command("ps aux | grep #{apache.service} | grep -v grep | grep root | wc -l | tr -d [:space:]").stdout.to_i
+  total_tasks = command("ps aux | egrep '(apache2|httpd)' | grep -v grep | grep root | wc -l | tr -d [:space:]").stdout.to_i
   describe total_tasks do
     it { should eq 1 }
   end
@@ -72,7 +56,7 @@ control 'apache-04' do
   impact 1.0
   title 'Check Apache config folder owner, group and permissions.'
   desc 'The Apache config folder should owned and grouped by root, be writable, readable and executable by owner. It should be readable, executable by group and not readable, not writeable by others.'
-  describe file(apache.conf_dir) do
+  describe file(HTTPD_ROOT.stdout.strip) do
     it { should be_owned_by 'root' }
     it { should be_grouped_into 'root' }
     it { should be_readable.by('owner') }
@@ -91,7 +75,7 @@ control 'apache-05' do
   impact 1.0
   title 'Check Apache config file owner, group and permissions.'
   desc 'The Apache config file should owned and grouped by root, only be writable and readable by owner and not write- and readable by others.'
-  describe file(apache.conf_path) do
+  describe file(HTTPD_CONFIG_FILE_PATH) do  
     it { should be_owned_by 'root' }
     it { should be_grouped_into 'root' }
     it { should be_readable.by('owner') }
@@ -106,32 +90,13 @@ control 'apache-05' do
   end
 end
 
-#control 'apache-05' do
-#  impact 1.0
-#  title 'Check Apache config file owner, group and permissions.'
-#  desc 'The Apache config file should owned and grouped by root, only be writable and readable by owner and not write- and readable by others.'
-#  describe apache_conf do
-#    it { should be_owned_by 'root' }
-#    it { should be_grouped_into 'root' }
-#    it { should be_readable.by('owner') }
-#    it { should be_writable.by('owner') }
-#    it { should_not be_executable.by('owner') }
-#    it { should be_readable.by('group') }
-#    it { should_not be_writable.by('group') }
-#    it { should_not be_executable.by('group') }
-#    it { should_not be_readable.by('others') }
-#    it { should_not be_writable.by('others') }
-#    it { should_not be_executable.by('others') }
-#  end
-#end
-
 control 'apache-06' do
   impact 1.0
   title 'User and group should be set properly'
   desc 'For security reasons it is recommended to run Apache in its own non-privileged account.'
   describe apache_conf do
-    its('User') { should eq [apache.user] }
-    its('Group') { should eq [apache.user] }
+    its('User') { should eq [HTTPD_USER.stdout.strip] }
+    its('Group') { should eq [HTTPD_USER.stdout.strip] }
   end
 end
 
@@ -148,24 +113,12 @@ control 'apache-08' do
   impact 1.0
   title 'Should not load certain modules'
   desc 'Apache HTTP should not load legacy modules'
-
-  # module_path = File.join(apache.conf_dir, '/mods-enabled/')
-  # loaded_modules = command('ls ' << module_path).stdout.split.keep_if { |file_name| /.load/.match(file_name) }
-
-  # loaded_modules.each do |id|
-  #   describe file(File.join(module_path, id)) do
-  #     its('content') { should_not match(/^\s*?LoadModule\s+?dav_module/) }
-  #     its('content') { should_not match(/^\s*?LoadModule\s+?cgid_module/) }
-  #     its('content') { should_not match(/^\s*?LoadModule\s+?cgi_module/) }
-  #     its('content') { should_not match(/^\s*?LoadModule\s+?include_module/) }
-  #   end
-  # end
-  describe apache_conf do
-    its('content') { should_not match(/^\s*?LoadModule\s+?dav_module/) }
-    its('content') { should_not match(/^\s*?LoadModule\s+?cgid_module/) }
-    its('content') { should_not match(/^\s*?LoadModule\s+?cgi_module/) }
-    its('content') { should_not match(/^\s*?LoadModule\s+?include_module/) }
-  end
+  describe command('apachectl -M') do
+    its(:stdout) { should_not match(/^\s*?dav_module.*/) }
+    its(:stdout) { should_not match(/^\s*?cgid_module.*/) }
+    its(:stdout) { should_not match(/^\s*?cgi_module.*/) }
+    its(:stdout) { should_not match(/^\s*?include_module.*/) }
+  end     
 end
 
 control 'apache-09' do
@@ -209,20 +162,7 @@ control 'apache-13' do
   title 'SSL honor cipher order'
   desc 'When choosing a cipher during an SSLv3 or TLSv1 handshake, normally the client\'s preference is used. If this directive is enabled, the server\'s preference will be used instead.'
   describe apache_conf do
-    # Test with should include
     its('content') { should match(/^\s*?SSLHonorCipherOrder\s+?On/i) }
-  end
-
-  sites_enabled_path = File.join(apache.conf_dir, '/sites-enabled/')
-  loaded_sites = command('ls ' << sites_enabled_path).stdout.split.keep_if { |file_name| /.conf/.match(file_name) }
-
-  loaded_sites.each do |id|
-    virtual_host = file(File.join(sites_enabled_path, id)).content.gsub(/#.*$/, '').scan(%r{<virtualhost.*443(.*?)<\/virtualhost>}im).flatten
-    next if virtual_host.empty?
-
-    describe virtual_host do
-      it { should include(/^\s*?SSLHonorCipherOrder\s+?On/i) }
-    end
   end
 end
 
@@ -231,15 +171,6 @@ control 'apache-14' do
   title 'Enable Apache Logging'
   desc 'Apache allows you to logging independently of your OS logging. It is wise to enable Apache logging, because it provides more information, such as the commands entered by users that have interacted with your Web server.'
   describe apache_conf do
-    # Test with should include
     its('content') { should match(/CustomLog.*$/i) }
-  end
-  sites_enabled_path = File.join(apache.conf_dir, '/sites-enabled/')
-  loaded_sites = command('ls ' << sites_enabled_path).stdout.split.keep_if { |file_name| /.conf/.match(file_name) }
-
-  loaded_sites.each do |id|
-    describe file(File.join(sites_enabled_path, id)).content.gsub(/#.*$/, '').scan(%r{<virtualhost(.*?)<\/virtualhost>}im).flatten do
-      it { should include(/CustomLog.*$/i) }
-    end
   end
 end
