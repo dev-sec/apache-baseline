@@ -28,25 +28,17 @@ control 'apache-01' do
   impact 1.0
   title 'Apache should be running'
   desc 'Apache should be installed, running and automatically started at boot time'
-  if os.debian?
-    describe service('apache2') do
-      it { should be_installed }
-      it { should be_running }
-      it { should be_enabled }
-    end
-  elsif os.redhat?
-    describe service('httpd') do
-      it { should be_installed }
-      it { should be_running }
-      it { should be_enabled }
-    end
+  describe service(apache.service) do
+    it { should be_installed }
+    it { should be_running }
+    it { should be_enabled }
   end
 end
 
 control 'apache-03' do
   title 'Apache should start max. 1 root-task'
   desc 'The Apache service in its own non-privileged account. If the web server process runs with administrative privileges, an attack who obtains control over the apache process may control the entire system.'
-  total_tasks = command("ps aux | egrep '(apache2|httpd)' | grep -v grep | grep root | wc -l | tr -d [:space:]").stdout.to_i
+  total_tasks = command("ps aux | grep -E '(apache2|httpd)' | grep -v grep | grep root | wc -l | tr -d [:space:]").stdout.to_i
   describe total_tasks do
     it { should eq 1 }
   end
