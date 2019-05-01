@@ -21,9 +21,9 @@
 
 title 'Apache server config'
 
-#only_if do
-#  command(httpd.service).exist?
-#end
+only_if do
+  package('htppd').installed? || command(apache.service).exist?
+end
 
 title 'Apache server config'
 
