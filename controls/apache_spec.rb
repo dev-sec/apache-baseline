@@ -22,7 +22,7 @@
 title 'Apache server config'
 
 only_if do
-  package('httpd').installed? || command(apache.service).exist?
+  command(apache.service).exist? || file(apache.conf_dir).exist? || service(apache.service).installed?
 end
 
 title 'Apache server config'
@@ -31,7 +31,7 @@ control 'apache-01' do
   impact 1.0
   title 'Apache should be running'
   desc 'Apache should be running.'
-  describe service(httpd.service) do
+  describe service(apache.service) do
     it { should be_installed }
     it { should be_running }
   end
@@ -42,7 +42,7 @@ control 'apache-02' do
   title 'Apache should be enabled'
   desc 'Configure apache service to be automatically started at boot time'
   only_if { os[:family] != 'ubuntu' && os[:release] != '16.04' } || only_if { os[:family] != 'debian' && os[:release] != '8' }
-  describe service(httpd.service) do
+  describe service(apache.service) do
     it { should be_enabled }
   end
 end
@@ -50,7 +50,7 @@ end
 control 'apache-03' do
   title 'Apache should start max. 1 root-task'
   desc 'The Apache service in its own non-privileged account. If the web server process runs with administrative privileges, an attack who obtains control over the apache process may control the entire system.'
-  total_tasks = command("ps aux | grep #{httpd.service} | grep -v grep | grep root | wc -l | tr -d [:space:]").stdout.to_i
+  total_tasks = command("ps aux | grep #{apache.service} | grep -v grep | grep root | wc -l | tr -d [:space:]").stdout.to_i
   describe total_tasks do
     it { should eq 1 }
   end
@@ -60,7 +60,7 @@ control 'apache-04' do
   impact 1.0
   title 'Check Apache config folder owner, group and permissions.'
   desc 'The Apache config folder should owned and grouped by root, be writable, readable and executable by owner. It should be readable, executable by group and not readable, not writeable by others.'
-  describe file(httpd.conf_dir) do
+  describe file(apache.conf_dir) do
     it { should be_owned_by 'root' }
     it { should be_grouped_into 'root' }
     it { should be_readable.by('owner') }
@@ -79,7 +79,7 @@ control 'apache-05' do
   impact 1.0
   title 'Check Apache config file owner, group and permissions.'
   desc 'The Apache config file should owned and grouped by root, only be writable and readable by owner and not write- and readable by others.'
-  describe file(httpd.conf_path) do
+  describe file(apache.conf_path) do
     it { should be_owned_by 'root' }
     it { should be_grouped_into 'root' }
     it { should be_readable.by('owner') }
@@ -92,7 +92,7 @@ control 'apache-05' do
     it { should_not be_writable.by('others') }
     it { should_not be_executable.by('others') }
   end
-  describe file(File.join(httpd.conf_dir, '/conf-enabled/hardening.conf')) do
+  describe file(File.join(apache.conf_dir, '/conf-enabled/hardening.conf')) do
     it { should be_owned_by 'root' }
     it { should be_grouped_into 'root' }
     it { should be_readable.by('owner') }
