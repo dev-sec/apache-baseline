@@ -22,7 +22,7 @@
 title 'Apache server config'
 
 only_if do
-  command(apache.service).exist?
+  command(apache.service).exist? || file(apache.conf_dir).exist? || service(apache.service).installed?
 end
 
 title 'Apache server config'
