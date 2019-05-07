@@ -20,8 +20,10 @@ task default: [:lint, 'test:check']
 namespace :test do
   # run inspec check to verify that the profile is properly configured
   task :check do
-    dir = File.join(File.dirname(__FILE__))
-    system({ 'CHEF_LICENSE' => 'accept' }, "bundle exec inspec check #{dir}")
+    require 'inspec'
+    puts "Checking profile with InSpec Version: #{Inspec::VERSION}"
+    profile = Inspec::Profile.for_target('.', backend: Inspec::Backend.create(Inspec::Config.mock))
+    pp profile.check
   end
 end
 

@@ -4,7 +4,6 @@ source 'https://rubygems.org'
 
 gem 'highline', '~> 2.0.1'
 gem 'inspec', '~> 4'
-gem 'inspec-bin'
 gem 'rack', '2.0.6'
 gem 'rake'
 gem 'rubocop', '~> 0.66.0'
