@@ -2,12 +2,13 @@
 
 source 'https://rubygems.org'
 
-gem 'highline', '~> 1.7.0'
-gem 'inspec', '~> 3.0.0'
-gem 'rack', '1.6.4'
+gem 'highline', '~> 2.0.1'
+gem 'inspec', '~> 4'
+gem 'inspec-bin'
+gem 'rack', '2.0.6'
 gem 'rake'
-gem 'rubocop', '~> 0.60.0'
+gem 'rubocop', '~> 0.66.0'
 
 group :tools do
-  gem 'github_changelog_generator', '~> 1.14.0'
+  gem 'github_changelog_generator'
 end
