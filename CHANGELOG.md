@@ -1,7 +1,23 @@
 # Change Log
 
-## [2.0.2](https://github.com/hardening-io/tests-apache-hardening/tree/2.0.2) (2017-05-08)
-[Full Changelog](https://github.com/hardening-io/tests-apache-hardening/compare/2.0.1...2.0.2)
+## [2.1.0](https://github.com/dev-sec/apache-baseline/tree/2.1.0) (2019-05-07)
+[Full Changelog](https://github.com/dev-sec/apache-baseline/compare/2.0.2...2.1.0)
+
+**Closed issues:**
+
+- Change the parameter from apache to httpd [\#28](https://github.com/dev-sec/apache-baseline/issues/28)
+
+**Merged pull requests:**
+
+- Add apache library from core inspec as it was deprecated in inspec 4 [\#30](https://github.com/dev-sec/apache-baseline/pull/30) ([alexpop](https://github.com/alexpop))
+- Fixed the issue related issues/28 [\#29](https://github.com/dev-sec/apache-baseline/pull/29) ([gadilasr](https://github.com/gadilasr))
+- Remove non utf-8 characters [\#27](https://github.com/dev-sec/apache-baseline/pull/27) ([alexpop](https://github.com/alexpop))
+- Update gems and ruby version to 2.4.1 [\#25](https://github.com/dev-sec/apache-baseline/pull/25) ([szEvEz](https://github.com/szEvEz))
+- Update issue templates [\#24](https://github.com/dev-sec/apache-baseline/pull/24) ([rndmh3ro](https://github.com/rndmh3ro))
+- use recommended spdx license identifier [\#23](https://github.com/dev-sec/apache-baseline/pull/23) ([chris-rock](https://github.com/chris-rock))
+
+## [2.0.2](https://github.com/dev-sec/apache-baseline/tree/2.0.2) (2017-05-08)
+[Full Changelog](https://github.com/dev-sec/apache-baseline/compare/2.0.1...2.0.2)
 
 **Merged pull requests:**
 
@@ -9,22 +25,22 @@
 - restrict ruby testing to version 2.3.3 und update gemfile [\#21](https://github.com/dev-sec/apache-baseline/pull/21) ([atomic111](https://github.com/atomic111))
 - Update profile version [\#20](https://github.com/dev-sec/apache-baseline/pull/20) ([alexpop](https://github.com/alexpop))
 
-## [2.0.1](https://github.com/hardening-io/tests-apache-hardening/tree/2.0.1) (2017-02-27)
-[Full Changelog](https://github.com/hardening-io/tests-apache-hardening/compare/2.0.0...2.0.1)
+## [2.0.1](https://github.com/dev-sec/apache-baseline/tree/2.0.1) (2017-02-27)
+[Full Changelog](https://github.com/dev-sec/apache-baseline/compare/2.0.0...2.0.1)
 
 **Merged pull requests:**
 
 - update common files [\#19](https://github.com/dev-sec/apache-baseline/pull/19) ([atomic111](https://github.com/atomic111))
 - Switch to the new apache-baseline name everywhere [\#18](https://github.com/dev-sec/apache-baseline/pull/18) ([alexpop](https://github.com/alexpop))
 
-## [2.0.0](https://github.com/hardening-io/tests-apache-hardening/tree/2.0.0) (2016-06-17)
-[Full Changelog](https://github.com/hardening-io/tests-apache-hardening/compare/1.0.0...2.0.0)
+## [2.0.0](https://github.com/dev-sec/apache-baseline/tree/2.0.0) (2016-06-17)
+[Full Changelog](https://github.com/dev-sec/apache-baseline/compare/1.0.0...2.0.0)
 
 **Merged pull requests:**
 
 - migrate to inspec profile [\#17](https://github.com/dev-sec/apache-baseline/pull/17) ([atomic111](https://github.com/atomic111))
 
-## [1.0.0](https://github.com/hardening-io/tests-apache-hardening/tree/1.0.0) (2015-10-15)
+## [1.0.0](https://github.com/dev-sec/apache-baseline/tree/1.0.0) (2015-10-15)
 **Merged pull requests:**
 
 - adapt to new robocop style [\#16](https://github.com/dev-sec/apache-baseline/pull/16) ([chris-rock](https://github.com/chris-rock))
