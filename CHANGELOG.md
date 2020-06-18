@@ -1,8 +1,16 @@
 # Changelog
 
-## [2.0.3](https://github.com/dev-sec/apache-baseline/tree/2.0.3) (2020-06-18)
+## [2.1.2](https://github.com/dev-sec/apache-baseline/tree/2.1.2) (2020-06-18)
 
-[Full Changelog](https://github.com/dev-sec/apache-baseline/compare/2.1.0...2.0.3)
+[Full Changelog](https://github.com/dev-sec/apache-baseline/compare/2.1.1...2.1.2)
+
+**Merged pull requests:**
+
+- version alignment [\#33](https://github.com/dev-sec/apache-baseline/pull/33) ([micheelengronne](https://github.com/micheelengronne))
+
+## [2.1.1](https://github.com/dev-sec/apache-baseline/tree/2.1.1) (2020-06-18)
+
+[Full Changelog](https://github.com/dev-sec/apache-baseline/compare/2.1.0...2.1.1)
 
 **Merged pull requests:**
 
