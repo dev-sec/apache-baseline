@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.3](https://github.com/dev-sec/apache-baseline/tree/2.1.3) (2020-07-23)
+
+[Full Changelog](https://github.com/dev-sec/apache-baseline/compare/2.1.2...2.1.3)
+
+**Merged pull requests:**
+
+- The release draft references the correct SHA [\#34](https://github.com/dev-sec/apache-baseline/pull/34) ([micheelengronne](https://github.com/micheelengronne))
+
 ## [2.1.2](https://github.com/dev-sec/apache-baseline/tree/2.1.2) (2020-06-18)
 
 [Full Changelog](https://github.com/dev-sec/apache-baseline/compare/2.1.1...2.1.2)
