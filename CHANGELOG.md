@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.4](https://github.com/dev-sec/apache-baseline/tree/2.1.4) (2021-01-26)
+
+[Full Changelog](https://github.com/dev-sec/apache-baseline/compare/2.1.3...2.1.4)
+
+**Merged pull requests:**
+
+- GitHub action [\#35](https://github.com/dev-sec/apache-baseline/pull/35) ([rndmh3ro](https://github.com/rndmh3ro))
+
 ## [2.1.3](https://github.com/dev-sec/apache-baseline/tree/2.1.3) (2020-07-23)
 
 [Full Changelog](https://github.com/dev-sec/apache-baseline/compare/2.1.2...2.1.3)
