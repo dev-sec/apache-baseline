@@ -25,7 +25,9 @@ class Apache < Inspec.resource(1)
   EXAMPLE
 
   attr_reader :service, :conf_dir, :conf_path, :user
+
   def initialize
+    super
     if inspec.os.debian?
       @service = 'apache2'
       @conf_dir = '/etc/apache2/'
