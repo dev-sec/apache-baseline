@@ -2,18 +2,17 @@
 AllCops:
   Exclude:
   - vendor/**/*
-  - "*/puppet/Puppetfile"
-  - "*/puppet/.tmp/**/*"
-  TargetRubyVersion: 2.4
 Documentation:
   Enabled: false
-AlignParameters:
+Layout/ParameterAlignment:
   Enabled: true
 HashSyntax:
   Enabled: true
 LineLength:
   Enabled: false
 EmptyLinesAroundBlockBody:
+  Enabled: false
+Style/Encoding:
   Enabled: false
 MethodLength:
   Max: 40
