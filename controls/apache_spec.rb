@@ -225,7 +225,7 @@ control 'apache-13' do
   loaded_sites = command('ls ' << sites_enabled_path).stdout.split.keep_if { |file_name| /.conf/.match(file_name) }
 
   loaded_sites.each do |id|
-    virtual_host = file(File.join(sites_enabled_path, id)).content.gsub(/#.*$/, '').scan(%r{<virtualhost.*443(.*?)<\/virtualhost>}im).flatten
+    virtual_host = file(File.join(sites_enabled_path, id)).content.gsub(/#.*$/, '').scan(%r{<virtualhost.*443(.*?)</virtualhost>}im).flatten
     next if virtual_host.empty?
 
     describe virtual_host do
@@ -243,7 +243,7 @@ control 'apache-14' do
   loaded_sites = command('ls ' << sites_enabled_path).stdout.split.keep_if { |file_name| /.conf/.match(file_name) }
 
   loaded_sites.each do |id|
-    describe file(File.join(sites_enabled_path, id)).content.gsub(/#.*$/, '').scan(%r{<virtualhost(.*?)<\/virtualhost>}im).flatten do
+    describe file(File.join(sites_enabled_path, id)).content.gsub(/#.*$/, '').scan(%r{<virtualhost(.*?)</virtualhost>}im).flatten do
       it { should include(/CustomLog.*$/i) }
     end
   end
