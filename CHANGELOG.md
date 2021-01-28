@@ -1,11 +1,12 @@
 # Changelog
 
-## [2.1.4](https://github.com/dev-sec/apache-baseline/tree/2.1.4) (2021-01-26)
+## [2.1.4](https://github.com/dev-sec/apache-baseline/tree/2.1.4) (2021-01-28)
 
 [Full Changelog](https://github.com/dev-sec/apache-baseline/compare/2.1.3...2.1.4)
 
 **Merged pull requests:**
 
+- Fix lint [\#36](https://github.com/dev-sec/apache-baseline/pull/36) ([schurzi](https://github.com/schurzi))
 - GitHub action [\#35](https://github.com/dev-sec/apache-baseline/pull/35) ([rndmh3ro](https://github.com/rndmh3ro))
 
 ## [2.1.3](https://github.com/dev-sec/apache-baseline/tree/2.1.3) (2020-07-23)
