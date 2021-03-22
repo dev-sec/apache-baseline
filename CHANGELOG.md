@@ -1,11 +1,12 @@
 # Changelog
 
-## [2.1.4](https://github.com/dev-sec/apache-baseline/tree/2.1.4) (2021-02-02)
+## [2.1.4](https://github.com/dev-sec/apache-baseline/tree/2.1.4) (2021-03-22)
 
 [Full Changelog](https://github.com/dev-sec/apache-baseline/compare/2.1.3...2.1.4)
 
 **Merged pull requests:**
 
+- add dependency to chef-config for CI [\#38](https://github.com/dev-sec/apache-baseline/pull/38) ([schurzi](https://github.com/schurzi))
 - use version tag for changelog action [\#37](https://github.com/dev-sec/apache-baseline/pull/37) ([schurzi](https://github.com/schurzi))
 - Fix lint [\#36](https://github.com/dev-sec/apache-baseline/pull/36) ([schurzi](https://github.com/schurzi))
 - GitHub action [\#35](https://github.com/dev-sec/apache-baseline/pull/35) ([rndmh3ro](https://github.com/rndmh3ro))
@@ -51,7 +52,6 @@
 - Update gems and ruby version to 2.4.1 [\#25](https://github.com/dev-sec/apache-baseline/pull/25) ([szEvEz](https://github.com/szEvEz))
 - Update issue templates [\#24](https://github.com/dev-sec/apache-baseline/pull/24) ([rndmh3ro](https://github.com/rndmh3ro))
 - use recommended spdx license identifier [\#23](https://github.com/dev-sec/apache-baseline/pull/23) ([chris-rock](https://github.com/chris-rock))
-- update common files [\#19](https://github.com/dev-sec/apache-baseline/pull/19) ([atomic111](https://github.com/atomic111))
 
 ## [2.0.2](https://github.com/dev-sec/apache-baseline/tree/2.0.2) (2017-05-08)
 
@@ -69,6 +69,7 @@
 
 **Merged pull requests:**
 
+- update common files [\#19](https://github.com/dev-sec/apache-baseline/pull/19) ([atomic111](https://github.com/atomic111))
 - Switch to the new apache-baseline name everywhere [\#18](https://github.com/dev-sec/apache-baseline/pull/18) ([alexpop](https://github.com/alexpop))
 
 ## [2.0.0](https://github.com/dev-sec/apache-baseline/tree/2.0.0) (2016-06-17)
