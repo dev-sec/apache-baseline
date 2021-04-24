@@ -1,11 +1,12 @@
 # Changelog
 
-## [2.1.4](https://github.com/dev-sec/apache-baseline/tree/2.1.4) (2021-03-22)
+## [2.1.4](https://github.com/dev-sec/apache-baseline/tree/2.1.4) (2021-04-24)
 
 [Full Changelog](https://github.com/dev-sec/apache-baseline/compare/2.1.3...2.1.4)
 
 **Merged pull requests:**
 
+- fix rubocop error for Rakefile [\#39](https://github.com/dev-sec/apache-baseline/pull/39) ([schurzi](https://github.com/schurzi))
 - add dependency to chef-config for CI [\#38](https://github.com/dev-sec/apache-baseline/pull/38) ([schurzi](https://github.com/schurzi))
 - use version tag for changelog action [\#37](https://github.com/dev-sec/apache-baseline/pull/37) ([schurzi](https://github.com/schurzi))
 - Fix lint [\#36](https://github.com/dev-sec/apache-baseline/pull/36) ([schurzi](https://github.com/schurzi))
