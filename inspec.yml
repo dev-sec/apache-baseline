@@ -5,6 +5,7 @@ maintainer: DevSec Hardening Framework Team
 copyright: DevSec Hardening Framework Team
 copyright_email: hello@dev-sec.io
 license: Apache-2.0
+inspec_version: '>= 4.6.3'
 summary: Test-suite for best-practice apache hardening
 version: 2.1.4
 supports:
