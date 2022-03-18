@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.5](https://github.com/dev-sec/apache-baseline/tree/2.1.5) (2022-03-18)
+
+[Full Changelog](https://github.com/dev-sec/apache-baseline/compare/2.1.4...2.1.5)
+
+**Merged pull requests:**
+
+- Change linting to Cookstyle [\#42](https://github.com/dev-sec/apache-baseline/pull/42) ([schurzi](https://github.com/schurzi))
+
 ## [2.1.4](https://github.com/dev-sec/apache-baseline/tree/2.1.4) (2022-01-12)
 
 [Full Changelog](https://github.com/dev-sec/apache-baseline/compare/2.1.3...2.1.4)
