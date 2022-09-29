@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.1.5](https://github.com/dev-sec/apache-baseline/tree/2.1.5) (2022-03-18)
+## [2.1.5](https://github.com/dev-sec/apache-baseline/tree/2.1.5) (2022-09-29)
 
 [Full Changelog](https://github.com/dev-sec/apache-baseline/compare/2.1.4...2.1.5)
 
