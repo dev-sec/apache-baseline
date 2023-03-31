@@ -1,11 +1,13 @@
 # Changelog
 
-## [2.1.5](https://github.com/dev-sec/apache-baseline/tree/2.1.5) (2022-09-29)
+## [2.1.5](https://github.com/dev-sec/apache-baseline/tree/2.1.5) (2023-03-31)
 
 [Full Changelog](https://github.com/dev-sec/apache-baseline/compare/2.1.4...2.1.5)
 
 **Merged pull requests:**
 
+- use shared github configuration [\#44](https://github.com/dev-sec/apache-baseline/pull/44) ([schurzi](https://github.com/schurzi))
+- Configure Renovate [\#43](https://github.com/dev-sec/apache-baseline/pull/43) ([renovate[bot]](https://github.com/apps/renovate))
 - Change linting to Cookstyle [\#42](https://github.com/dev-sec/apache-baseline/pull/42) ([schurzi](https://github.com/schurzi))
 
 ## [2.1.4](https://github.com/dev-sec/apache-baseline/tree/2.1.4) (2022-01-12)
