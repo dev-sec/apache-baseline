@@ -1,11 +1,12 @@
 # Changelog
 
-## [2.1.5](https://github.com/dev-sec/apache-baseline/tree/2.1.5) (2023-03-31)
+## [2.1.5](https://github.com/dev-sec/apache-baseline/tree/2.1.5) (2023-05-02)
 
 [Full Changelog](https://github.com/dev-sec/apache-baseline/compare/2.1.4...2.1.5)
 
 **Merged pull requests:**
 
+- add spellchecking with codespell [\#45](https://github.com/dev-sec/apache-baseline/pull/45) ([schurzi](https://github.com/schurzi))
 - use shared github configuration [\#44](https://github.com/dev-sec/apache-baseline/pull/44) ([schurzi](https://github.com/schurzi))
 - Configure Renovate [\#43](https://github.com/dev-sec/apache-baseline/pull/43) ([renovate[bot]](https://github.com/apps/renovate))
 - Change linting to Cookstyle [\#42](https://github.com/dev-sec/apache-baseline/pull/42) ([schurzi](https://github.com/schurzi))
